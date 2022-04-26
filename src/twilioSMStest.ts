@@ -26,3 +26,4 @@ const message: SMSRequest = {
 
 const helper = new TwilioSMS(accountSid, keySid, secret, authToken);
 helper.sendSms(message).subscribe(console.log);
+//deno run --allow-env --allow-net --allow-read twilioSMStest.ts

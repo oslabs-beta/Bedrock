@@ -44,7 +44,7 @@ export class TwilioSMS {
     //   }
     // ).then((resp) => resp.json());
  
-    const response = await fetch(
+    const data = await fetch(
       'https://api.twilio.com/2010-04-01/Accounts/' + this.accountSID + '/Messages.json',
       {
         method: 'POST',
@@ -58,7 +58,11 @@ export class TwilioSMS {
         body: new URLSearchParams(payload),
       }
     )
-    return response.json();
+    const response = await data.json();
+    const { body } = response;
+    console.log(body);
+    
+    return response;
  
     // //if request is accepted, a promise returned by this function resolves with a URI
     // //otherwise it rejects 
@@ -103,7 +107,13 @@ export class TwilioSMS {
   //   );
   // }
 
+  private generateCode(){
+    return Math.floor(Math.random() * 1000000).toString(); //generate a random 6 digit code, converted to a string so it can have trailing zeros if necessary
+  }
+
   public sendSms(payload: SMSRequest){
+    let messageBody:string = this.generateCode();
+
     return from(
       this.postSMSRequest(
         payload)
