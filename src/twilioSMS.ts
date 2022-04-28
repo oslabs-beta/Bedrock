@@ -1,7 +1,6 @@
 import * as base64 from "https://denopkg.com/chiefbiiko/base64/mod.ts";
 import { Observable, from, timer } from 'https://cdn.skypack.dev/rxjs';
 
-
 export interface SMSRequest {
   [index: string]: string;
   From: string; //the twilio phone number to use to send an SMS
@@ -9,6 +8,10 @@ export interface SMSRequest {
   Body: string; //SMS content
 }
 
+export interface Incoming {
+  From: string;
+  To: string;
+}
 
 export class TwilioSMS {
   private authorizationHeader: string;
@@ -17,8 +20,8 @@ export class TwilioSMS {
   //   //building the basic access authentication header that must be sent with every HTTP request to the Twilio API
   //   this.authorizationHeader = 'Basic ' + base64.fromUint8Array(new TextEncoder().encode(keySID + ':' + secret));
   // }
-  constructor(private accountSID: string, keySID: string, secret: string, authToken: string) {
-    //building the basic access authentication header that must be sent with every HTTP request to the Twilio API
+  constructor(private accountSID: string, private keySID: string, private secret: string, private authToken: string) {
+    //building the basic access authentication header that must be sent with every HTTP request to the Twilio API, which requires base64 encoding
     this.authorizationHeader = 'Basic ' + base64.fromUint8Array(new TextEncoder().encode(`${accountSID}:${authToken}`));
   }
 
@@ -43,6 +46,7 @@ export class TwilioSMS {
     //     body: new URLSearchParams(payload).toString(),
     //   }
     // ).then((resp) => resp.json());
+    console.log('this is the authorization header: ', this.authorizationHeader);
  
     const data = await fetch(
       'https://api.twilio.com/2010-04-01/Accounts/' + this.accountSID + '/Messages.json',
@@ -58,11 +62,13 @@ export class TwilioSMS {
         body: new URLSearchParams(payload),
       }
     )
+    //console.log('this is data!: ', data);
     const response = await data.json();
     const { body } = response;
-    console.log(body);
+    //console.log('this is response!:', response);
     
-    return response;
+    //returning only the body of the response object 
+    return body;
  
     // //if request is accepted, a promise returned by this function resolves with a URI
     // //otherwise it rejects 
@@ -107,18 +113,22 @@ export class TwilioSMS {
   //   );
   // }
 
-  private generateCode(){
-    return Math.floor(Math.random() * 1000000).toString(); //generate a random 6 digit code, converted to a string so it can have trailing zeros if necessary
+  private generateCode(secret: string){
+    return (100000 + Math.floor(Math.random() * 900000)).toString(); //generate a random 6 digit code, converted to a string so it can have trailing zeros if necessary
   }
 
-  public sendSms(payload: SMSRequest){
-    let messageBody:string = this.generateCode();
+  public sendSms(context: Incoming){
+    const messageBody:string = this.generateCode(this.secret);
+    const {From, To} = context;
 
-    return from(
-      this.postSMSRequest(
-        payload)
-      
-    )
+    const newPayload: SMSRequest = {
+      From, 
+      To,
+      Body: messageBody
+    }
+
+    return this.postSMSRequest(newPayload);
+    //return from (this.postSMSRequest(payload))
     // .pipe(
     //   flatMap((uri: string) => this.pollRequestStatus(uri))
     // );
