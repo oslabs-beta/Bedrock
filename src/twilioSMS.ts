@@ -1,5 +1,6 @@
 import * as base64 from "https://denopkg.com/chiefbiiko/base64/mod.ts";
 import { Observable, from, timer } from 'https://cdn.skypack.dev/rxjs';
+import { generateTOTP } from './totp.ts'
 
 export interface SMSRequest {
   [index: string]: string;
@@ -32,20 +33,6 @@ export class TwilioSMS {
   */
   private async postSMSRequest(payload: SMSRequest): Promise<string> {
     //perform HTTP post request to the https://api.twilio.com/2010-04-01/Accounts/YOUR_ACC_SID/Messages.json URI to place the send SMS request
-    // const request = fetch(
-    //   'https://api.twilio.com/2010-04-01/Accounts/' + this.accountSID + '/Messages.json',
-    //   {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8',
-    //       Authorization: this.authorizationHeader,
-    //     },
-    //     //content of the SMS message is passed within body of post request
-    //     //body must be sent in url-encoded form: ex. key1=value1&key2=value2
-    //     //payload object converted to url-encoded string using URLSearchParams object 
-    //     body: new URLSearchParams(payload).toString(),
-    //   }
-    // ).then((resp) => resp.json());
     console.log('this is the authorization header: ', this.authorizationHeader);
  
     const data = await fetch(
@@ -113,12 +100,9 @@ export class TwilioSMS {
   //   );
   // }
 
-  private generateCode(secret: string){
-    return (100000 + Math.floor(Math.random() * 900000)).toString(); //generate a random 6 digit code, converted to a string so it can have trailing zeros if necessary
-  }
-
-  public sendSms(context: Incoming){
-    const messageBody:string = this.generateCode(this.secret);
+  public async sendSms(context: Incoming){
+    const code = await generateTOTP(this.secret);
+    const messageBody:string = code[1];
     const {From, To} = context;
 
     const newPayload: SMSRequest = {
