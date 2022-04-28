@@ -17,7 +17,7 @@ const phoneNumber: string = <string>(
  Deno.env.get('TWILIO_PHONE_NUMBER')
 );
 
-const authToken: string = <string> (
+const authToken: string = <string>(
   Deno.env.get('TWILIO_AUTH_TOKEN')
 );
 

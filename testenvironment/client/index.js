@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const signUpUser = document.getElementById('signUpUsername').value;
   const signUpPass = document.getElementById('signUpPassword').value;
 
-  logInForm.addEventListener('onsubmit', async (e) => {
+  logInForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     console.log('submitted form!')
     //will need logic to make post request to server to log in
@@ -27,11 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
     catch(err){
       console.log('there was an error when logging in! the error was: ', err);
     }
-
+    
   })
 
 
-  signUpForm.addEventListener('onsubmit', async (e) => {
+  signUpForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     //will need logic to make post request to sign up
