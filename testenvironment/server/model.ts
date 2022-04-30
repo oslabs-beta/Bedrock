@@ -10,28 +10,31 @@ const connString: string = Deno.env.get("DBCONNSTRING")!;
 await client.connect(connString);
 
 interface UserSchema {
-  _id: string;
   username: string;
   password: string;
-  phone: string;
+  phone?: string;
   email: string;
   secret: string;
 };
 
-const db = client.database("denotestdb");
-const users = db.collection<UserSchema>("users");
+export const db = client.database("denotestdb");
+export const Users = db.collection<UserSchema>("users");
 
-console.log('well, it didn\'t break')
+
+
 
 //////////insertuser test////////////
-// const insertTest = await users.insertOne({
-//     _id: '0001',
-//     username: 'eric',
-//     password: 'eric1',
-//     phone: '7346460635',
-//     email: 'bedrock.deno@gmail.com',
-//     secret: '123456789',
-// });
+const insertTest = await Users.insertOne({    
+  username: 'eric',
+  password: 'eric1',
+  phone: '7346460635',
+  email: 'bedrock.deno@gmail.com',
+  secret: '123456789',
+});
+
+insertTest();
+
+console.log('well, it didn\'t break')
 
 //////////finduser test////////////
 // async function findUser (userid: string) {

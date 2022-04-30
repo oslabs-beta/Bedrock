@@ -1,12 +1,39 @@
-import { Router } from "https://deno.land/x/oak/mod.ts";
+import { Router, Context } from "https://deno.land/x/oak/mod.ts";
+
 
 export const router = new Router();
 
 router
-  .get('/', async (ctx, next) => {
-    //ctx.response.body = 'index.html';
+  .get('/oauth/access_token', (ctx, next) => {
+    console.log('param?', ctx.request.url.searchParams.getAll('secret'));
+    ctx.response.body = 'Hello!';
+  })
+  .get('/scripts/:script', async (ctx, next) => {
+    await ctx.send({
+      root: `${Deno.cwd()}/testenvironment/client/scripts`,
+      path: `${ctx.params.script}` //ctx.request.url.searchParams.get(site)
+    })
+  })
+  .get('/stylesheets/:sheet', async (ctx, next) => {
+    await ctx.send({
+      root: `${Deno.cwd()}/testenvironment/client/stylesheets`,
+      path: `${ctx.params.sheet}` //ctx.request.url.searchParams.get(site)
+    })
+  })
+  .get('/:site', async (ctx, next) => {
+    // const searchParams = new URLSearchParams();
+    console.log('visited!');
+    // console.log('these are the params using the URLSearchParams class: ', searchParams)
+    // console.log('param?', ctx.request.url.searchParams.getAll('code'));
+    await ctx.send({
+      root: `${Deno.cwd()}/testenvironment/client`,
+      path: `${ctx.params.site}.html` //ctx.request.url.searchParams.get(site)
+    })
+  })
+  .get('/', async (ctx: Context, next) => {
     if (await ctx.state.session.has("friends")) {
       console.log(await ctx.state.session.get("friends"));
+      // console.log(Object.keys(ctx.state.session));
     } else {
       await ctx.state.session.set("friends", 'john');
       console.log('Had to add the property!');
@@ -20,16 +47,13 @@ router
       next();
     }
   })
-  .get('/:site', async (ctx, next) => {
-    try {
-      await ctx.send({
-        root: `${Deno.cwd()}/testenvironment/client`,
-        path: `${ctx.params.site}.html`
-      })
-    } catch (err) {
-      next();
-    }
-  });
+  // .get('/oAuthInitialize', Bedrock.OAUTH)
+  // .post('/redirect_url/:code', Bedrock.CompleteOAUTH, DEVELOPERMIDDLEWARE) ->> console.log(ctx.params.code) -> CODE //-->
+  // .post('/verify', Bedrock.local, DEVELOPERMIDDLEWARE, ctx.response.redirect('verifyMFA')) //--> send back with session loggedin/authenticated true if credentials verified
+  // .post('/verifyMFA', Bedrock.MFA, DEVELOPER MIDDLEWARE) //checks to see if session mfa property is initialized --> will undergo MFA check based on which MFA is on property
+  // .get('/secret', Bedrock.verifyAuth, DEVELOPER MIDDLEWARE)
+  // .get('/logout', Bedrock.signOut, DEVELOPER MIDDLEWARE)
+  // 
   
 /**
  * import Bedrock from "bedrock.ts"
