@@ -12,7 +12,7 @@ await client.connect(connString);
 interface UserSchema {
   username: string;
   password: string;
-  phone?: string;
+  phone: string | null;
   email: string;
   secret: string;
 };
@@ -24,15 +24,15 @@ export const Users = db.collection<UserSchema>("users");
 
 
 //////////insertuser test////////////
-const insertTest = await Users.insertOne({    
-  username: 'eric',
-  password: 'eric1',
-  phone: '7346460635',
-  email: 'bedrock.deno@gmail.com',
-  secret: '123456789',
-});
+// const insertTest = await Users.insertOne({    
+//   username: 'eric',
+//   password: 'eric1',
+//   phone: '7346460635',
+//   email: 'bedrock.deno@gmail.com',
+//   secret: '123456789',
+// });
 
-insertTest();
+//insertTest();
 
 console.log('well, it didn\'t break')
 
