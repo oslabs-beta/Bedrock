@@ -1,5 +1,5 @@
 // Using deno_mongo (third party)
-import { Bson, MongoClient } from "https://deno.land/x/mongo@v0.29.4/mod.ts";
+import { MongoClient } from "https://deno.land/x/mongo@v0.29.4/mod.ts";
 import "https://deno.land/x/dotenv/load.ts";
 // New instance of mongo
 const client = new MongoClient();
@@ -23,6 +23,8 @@ export const Users = db.collection<UserSchema>("users");
 
 
 
+
+console.log('well, it didn\'t break')
 //////////insertuser test////////////
 // const insertTest = await Users.insertOne({    
 //   username: 'eric',
@@ -33,8 +35,6 @@ export const Users = db.collection<UserSchema>("users");
 // });
 
 //insertTest();
-
-console.log('well, it didn\'t break')
 
 //////////finduser test////////////
 // async function findUser (userid: string) {
