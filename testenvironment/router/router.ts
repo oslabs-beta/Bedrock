@@ -4,10 +4,6 @@ import dbController from '../controller/controller.ts';
 export const router = new Router();
 
 router
-  .get('/oauth/access_token', (ctx, next) => {
-    console.log('param?', ctx.request.url.searchParams.getAll('secret'));
-    ctx.response.body = 'Hello!';
-  })
   .get('/scripts/:script', async (ctx, next) => {
     await ctx.send({
       root: `${Deno.cwd()}/testenvironment/client/scripts`,
@@ -26,7 +22,6 @@ router
   
   .get('/:site', async (ctx, next) => {
     // const searchParams = new URLSearchParams();
-    console.log('visited!');
     // console.log('these are the params using the URLSearchParams class: ', searchParams)
     // console.log('param?', ctx.request.url.searchParams.getAll('code'));
     await ctx.send({
