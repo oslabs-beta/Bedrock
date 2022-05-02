@@ -2,8 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const logInForm = document.getElementById('logInForm');
   const signUpForm = document.getElementById('signUpForm');
 
-  const loginUser = document.getElementById('loginUsername').value;
-  const loginPass = document.getElementById('loginPassword').value;
+  const loginUser = document.getElementById('logInUsername').value;
+  const loginPass = document.getElementById('logInPassword').value;
   
   const signUpUser = document.getElementById('signUpUsername').value;
   const signUpPass = document.getElementById('signUpPassword').value;

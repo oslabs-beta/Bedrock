@@ -1,5 +1,5 @@
-import { Router, Context } from "https://deno.land/x/oak/mod.ts";
-
+import { Router, Context, isHttpError} from "https://deno.land/x/oak/mod.ts";
+import dbController from '../controller/controller.ts';
 
 export const router = new Router();
 
@@ -20,6 +20,10 @@ router
       path: `${ctx.params.sheet}` //ctx.request.url.searchParams.get(site)
     })
   })
+  .post('/signup', dbController.addUser, async (ctx, next) => {
+    console.log('something')
+  })
+  
   .get('/:site', async (ctx, next) => {
     // const searchParams = new URLSearchParams();
     console.log('visited!');
@@ -47,6 +51,28 @@ router
       next();
     }
   })
+
+  // .use(async (ctx: Context, next) => {
+  //   try {
+  //     await next();
+  //   } catch (err) {
+  //     if (isHttpError(err)) {
+  //       ctx.response.status = err.status;
+  //       const { message, status, stack } = err;
+  //       if (ctx.request.accepts("json")) {
+  //         ctx.response.body = { message, status, stack };
+  //         ctx.response.type = "json";
+  //       } else {
+  //         ctx.response.body = `${status} ${message}\n\n${stack ?? ""}`;
+  //         ctx.response.type = "text/plain";
+  //       }
+  //     } else {
+  //       console.log(err);
+  //       throw err;
+  //     }
+  //   }
+  //});
+
   // .get('/oAuthInitialize', Bedrock.OAUTH)
   // .post('/redirect_url/:code', Bedrock.CompleteOAUTH, DEVELOPERMIDDLEWARE) ->> console.log(ctx.params.code) -> CODE //-->
   // .post('/verify', Bedrock.local, DEVELOPERMIDDLEWARE, ctx.response.redirect('verifyMFA')) //--> send back with session loggedin/authenticated true if credentials verified
