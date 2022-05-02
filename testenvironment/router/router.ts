@@ -17,7 +17,12 @@ router
     })
   })
   .post('/signup', dbController.addUser, async (ctx, next) => {
-    console.log('something')
+    console.log('signup')
+  })
+
+  .post('/login', dbController.verifyUser, async (ctx, next) => {
+    console.log('login')
+    ctx.response.redirect("/secret")
   })
   
   .get('/:site', async (ctx, next) => {
