@@ -13,24 +13,30 @@ export interface Incoming {
   From: string;
   To: string;
 }
-
+/**
+ * TwilioSMS class requires 3 passed in properties: 
+ *  AccountSID and AuthToken (provided by Twilio upon account creation)
+ *  Secret - associated secret with the username 
+ */
 export class TwilioSMS {
   private authorizationHeader: string;
 
-  // constructor(private accountSID: string, keySID: string, secret: string) {
-  //   //building the basic access authentication header that must be sent with every HTTP request to the Twilio API
-  //   this.authorizationHeader = 'Basic ' + base64.fromUint8Array(new TextEncoder().encode(keySID + ':' + secret));
-  // }
   constructor(private accountSID: string, private secret: string, private authToken: string) {
     //building the basic access authentication header that must be sent with every HTTP request to the Twilio API, which requires base64 encoding
     this.authorizationHeader = 'Basic ' + base64.fromUint8Array(new TextEncoder().encode(`${accountSID}:${authToken}`));
   }
 
   //async function 
-  /*
-  input: SMSRequest object
-  output: promise --> will resolve with a URI which can be called to check request status 
-  */
+  /**
+   * @param payload object
+   * returns promise<string>
+   * 
+   * Sends a post request to the TwilioSMS API 
+   * Content-type of the SMS message is passed as url-encoded form 
+     ex. key1=value1&key2=value2
+   * postSMSRequest utilizes the authorizationHeader property as the authorization header
+   * The content of the SMS message (payload) is passed within the body after invoking the URLSearchParams function
+   */
   private async postSMSRequest(payload: SMSRequest): Promise<string> {
     //perform HTTP post request to the https://api.twilio.com/2010-04-01/Accounts/YOUR_ACC_SID/Messages.json URI to place the send SMS request
     console.log('this is the authorization header: ', this.authorizationHeader);
@@ -56,54 +62,19 @@ export class TwilioSMS {
     
     //returning only the body of the response object 
     return body;
- 
-    // //if request is accepted, a promise returned by this function resolves with a URI
-    // //otherwise it rejects 
-    // const uri = request.then((resp) => {
-    //   if (resp.status != 'queued') {
-    //     return Promise.reject(resp.message);
-    //   }
-    //   else return resp.uri;
-    // });
-    
-    // //this uri can be used to poll the status of the request made to the Twilio API
-    // return uri;
   }
-  
-  //polls the message status
-  /*
-  input: uri string
-  output: Observable string
-  */
-  // private pollRequestStatus(uri: string): Observable<string> {
-  //   const timeout = timer(10 * 1000);
- 
-  //   return timer(0, 500).pipe(
-  //     flatMap(() => {return from ( 
-  //       fetch('https://api.twilio.com' + uri, {
-  //           headers: {
-  //             Authorization: this.authorizationHeader,
-  //           },
-  //         })
-  //           .then((resp) => resp.json())
-  //           .then((resp) => resp.status)
-  //       );
-  //     }),
-  //     distinct(),
-  //     takeWhile(
-  //       (status: string) =>
-  //         !['delivered', 'undelivered'].includes(status),
-  //       true
-  //     ),
- 
-  //     takeUntil(timeout)
-  //   );
-  // }
-
-  public async sendSms(context: Incoming){
+  /**
+   * 
+   * @param fromAndTo object
+   * 
+   * Will invoke the imported generateTOTP() function with the passed in secret 
+   * Since generateTOTP provides an array of 3 codes, will utilize the code at index 1
+   * Will invoke the postSMSRequest function with the passed in 'From', 'To', and newly generated code as the newPayload
+   */
+  public async sendSms(fromAndTo: Incoming){
     const code = await generateTOTP(this.secret);
     const messageBody:string = code[1];
-    const {From, To} = context;
+    const {From, To} = fromAndTo;
 
     const newPayload: SMSRequest = {
       From, 
@@ -112,9 +83,5 @@ export class TwilioSMS {
     }
 
     return this.postSMSRequest(newPayload);
-    //return from (this.postSMSRequest(payload))
-    // .pipe(
-    //   flatMap((uri: string) => this.pollRequestStatus(uri))
-    // );
   }
 }
