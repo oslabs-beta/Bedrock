@@ -21,7 +21,7 @@ export class TwilioSMS {
   //   //building the basic access authentication header that must be sent with every HTTP request to the Twilio API
   //   this.authorizationHeader = 'Basic ' + base64.fromUint8Array(new TextEncoder().encode(keySID + ':' + secret));
   // }
-  constructor(private accountSID: string, private keySID: string, private secret: string, private authToken: string) {
+  constructor(private accountSID: string, private secret: string, private authToken: string) {
     //building the basic access authentication header that must be sent with every HTTP request to the Twilio API, which requires base64 encoding
     this.authorizationHeader = 'Basic ' + base64.fromUint8Array(new TextEncoder().encode(`${accountSID}:${authToken}`));
   }

@@ -96,20 +96,68 @@ const dbController: Controller = {
     }
   },
 
-  readCreds: async (ctx: Context, next: any) => {
-    const body = await ctx.request.body();
-    const bodyValue = await body.value;
-    const {username, password} = bodyValue
-    const result = [username, password];
-    return result;
-  }
+  checkCreds: async (username: string, password: string): Promise<boolean> => {
+    try {
+      const foundUser = await Users.findOne({username})
+      const found = await foundUser;
+      console.log("FOUND: ", found);
+      if (found) {
+        // check that password passed in (bodyValue) matches found.password (pw in DB)
+        if (password === found.password) {
+          console.log('Password matches')
+          return true;
+        } else {
+          console.log('Bad password')
+          return false;
+        }
+      } else {
+        console.log("Couldn't find username in the database")
+        return false;
+      }
+    }
+    catch (err) {
+      console.log('Error when finding user in the database');
+      return false;
+    }
+  },
 
+  getSecret: async (username: string): Promise<string> => {
+    try {
+      const foundUser = await Users.findOne({username});
+      const found = await foundUser;
+
+      if (found) {
+        return found.secret;
+      } else {
+        return 'No Secret';
+      }
+    } catch {
+      throw Error('Error accessing the database');
+    }
+  },
+
+  getNumber: async (username: string): Promise<string> => {
+    try {
+      const foundUser = await Users.findOne({username});
+      const found = await foundUser;
+
+      if (found !== undefined && found.phone !== null) {
+        return found.phone;
+      } else {
+        return 'No Phone Number';
+      }
+    } catch {
+      throw Error('Error accessing the database');
+    }
+  },
 }
 
 export type Controller = {
   addUser: RouterMiddleware<string>;
   verifyUser: RouterMiddleware<string>;
-  readCreds: RouterMiddleware<string>;
+  checkCreds: (username: string, password: string) => Promise<boolean>;
+  getSecret: (username: string) => Promise<string>;
+  getNumber: (username: string) => Promise<string>;
 }
 
 interface resObject {

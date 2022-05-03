@@ -75,8 +75,8 @@ router
 
   // .get('/oAuthInitialize', Bedrock.OAUTH)
   // .post('/redirect_url/:code', Bedrock.CompleteOAUTH, DEVELOPERMIDDLEWARE) ->> console.log(ctx.params.code) -> CODE //-->
-  // .post('/verify', Bedrock.local, DEVELOPERMIDDLEWARE, ctx.response.redirect('verifyMFA')) //--> send back with session loggedin/authenticated true if credentials verified
-  // .post('/verifyMFA', Bedrock.MFA, DEVELOPER MIDDLEWARE) //checks to see if session mfa property is initialized --> will undergo MFA check based on which MFA is on property
+  // .post('/login', Bedrock.localLogin, DEVELOPERMIDDLEWARE, ctx.response.redirect('verifyMFA')) //--> send back with session loggedin/authenticated true if credentials verified
+  // .post('/loginMFA', Bedrock.MFACheck, DEVELOPER MIDDLEWARE) //checks to see if session mfa property is initialized --> will undergo MFA check based on which MFA is on property
   // .get('/secret', Bedrock.verifyAuth, DEVELOPER MIDDLEWARE)
   // .get('/logout', Bedrock.signOut, DEVELOPER MIDDLEWARE)
   // 

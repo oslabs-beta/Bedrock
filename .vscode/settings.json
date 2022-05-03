@@ -2,5 +2,4 @@
   "deno.enable": true,
   "deno.lint": true,
   "deno.unstable": false,
-  "deno.path": "/home/ejhagen/.deno/bin/deno"
 }
