@@ -82,7 +82,7 @@ export async function generateTOTP(secret:string): Promise<string[]> {
     hexMod += hexTime;
 
     // Split time string to hex components, asserted to not be null
-    const splitString = hexTime.match(/.{1,2}/g)!;
+    const splitString = hexMod.match(/.{1,2}/g)!;
 
     // Create new output array equal to the final length of input (should be 16 if used with SHA1)
     const decArray = new Array(splitString.length);
@@ -156,5 +156,3 @@ export function generateTOTPSecret(): string {
 
   return randString.join('');
 }
-
-console.log(await generateTOTP(generateTOTPSecret()));

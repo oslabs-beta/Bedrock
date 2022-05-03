@@ -1,4 +1,4 @@
-/**
+ /**
  * First Auth Middleware
  * 1. Get credentials
  *    -POST body
@@ -21,9 +21,9 @@
 // Interface definitions
 import { LocalStrategy, LocalStrategyParams } from "./LocalStrategy.ts"
 
-type Strategy = 'Local Strategy' | 'Github OAuth';
+export type Strategy = 'Local Strategy' | 'Github OAuth';
 
-type OAuthStrategyParams = {
+export type OAuthStrategyParams = {
   client_id : string;
   redirect_url? : string;
   login? : string;

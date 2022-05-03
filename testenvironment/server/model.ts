@@ -15,7 +15,7 @@ interface UserSchema {
   phone: string | null;
   email: string;
   secret: string;
-};
+}
 
 export const db = client.database("denotestdb");
 export const Users = db.collection<UserSchema>("users");
@@ -24,7 +24,7 @@ export const Users = db.collection<UserSchema>("users");
 
 
 
-console.log('well, it didn\'t break')
+// console.log('well, it didn\'t break')
 //////////insertuser test////////////
 // const insertTest = await Users.insertOne({    
 //   username: 'eric',
