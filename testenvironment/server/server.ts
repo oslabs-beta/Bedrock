@@ -1,6 +1,7 @@
 import { Application } from "https://deno.land/x/oak/mod.ts";
-import { router } from '../router/router.ts';
-import { testRouter } from '../router/testRouter.ts';
+// import { router } from '../router/router.ts';
+//import { testRouter } from '../router/testRouter.ts';
+import { test1Router } from '../router/oAuthRouter.ts';
 import { Session } from "https://deno.land/x/oak_sessions/mod.ts";
 
 const app = new Application();
@@ -10,8 +11,8 @@ const port = 8080;
 
 app.use(session.initMiddleware());
 // app.use(router.routes());
-app.use(testRouter.routes());
-app.use(router.allowedMethods());
+app.use(test1Router.routes());
+app.use(test1Router.allowedMethods());
 
 /**
  * ctx.state.session.loggedIn<boolean>

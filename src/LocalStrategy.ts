@@ -4,39 +4,50 @@ import { generateTOTP } from "./totp.ts";
 import { TwilioSMS, Incoming } from "./twilioSMS.ts";
 
 export type LocalStrategyParams = {
-  checkCreds : (username: string, password: string) => Promise<boolean>;
-  mfa_enabled : true;
-  mfa_type : "Token"
-  readCreds? : (ctx: Context) => string[];
+  checkCreds: (username: string, password: string) => Promise<boolean>;
+  mfa_enabled: true;
+  mfa_type: "Token"
+  readCreds?: (ctx: Context) => string[];
   getSecret: (username: string) => Promise<string>;
 } | {
-  checkCreds : (username: string, password: string) => Promise<boolean>;
-  mfa_enabled : true;
-  mfa_type : "SMS"
-  readCreds? : (ctx: Context) => string[];
+  checkCreds: (username: string, password: string) => Promise<boolean>;
+  mfa_enabled: true;
+  mfa_type: "SMS"
+  readCreds?: (ctx: Context) => string[];
   getSecret: (username: string) => Promise<string>;
   getNumber: (username: string) => Promise<string>;
   accountSID: string;
   authToken: string;
 } | {
-  checkCreds : (username: string, password: string) => Promise<boolean>;
-  mfa_enabled : false;
-  readCreds? : (ctx: Context) => string[];
+  checkCreds: (username: string, password: string) => Promise<boolean>;
+  mfa_enabled: false;
+  readCreds?: (ctx: Context) => string[];
 }
+
+// export interface LocalStrategyInterface {
+//   checkCreds: boolean;
+//   mfa_enabled: boolean; 
+//   getSecret?: string;
+//   readCreds?: string[];
+//   mfa_type?: string;
+//   accountSID?: string;
+//   authToken?: string;
+//   getNumber?: string;
+// }
 /**
  * Class LocalStrategy has 2 REQUIRED properties: checkCreds and mfa_enabled
  * All other properties are optional, and will be subjected to type LocalStrategyParams
  */
 export class LocalStrategy {
   checkCreds: ((username: string, password: string) => Promise<boolean>);
-  mfa_enabled: boolean; 
+  mfa_enabled: boolean;
   getSecret?: (username: string) => Promise<string>;
   readCreds?: ((ctx: Context) => string[]);
   mfa_type?: string;
   accountSID?: string;
   authToken?: string;
   getNumber?: (username: string) => Promise<string>;
-  
+
   constructor(stratParams: LocalStrategyParams) {
     this.checkCreds = stratParams.checkCreds;
     this.mfa_enabled = stratParams.mfa_enabled;
@@ -138,7 +149,7 @@ export class LocalStrategy {
     const bodyValue = await body.value;
     const mfaSecret = await this.getSecret!(await ctx.state.session.get('username'));
     const currentTOTP = await generateTOTP(mfaSecret);
-   
+
     const verified = currentTOTP.some((totp) => {
       return totp === bodyValue.code;
     });
@@ -152,8 +163,8 @@ export class LocalStrategy {
       ctx.state.mfaVerified = false;
       ctx.response.status = 401;
       ctx.response.body = {
-      success: false,
-      message: "Invalid credentials"
+        success: false,
+        message: "Invalid credentials"
       };
       return;
     }
