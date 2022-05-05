@@ -15,7 +15,7 @@ const params: LocalStrategyParams = {
   // getNumber: dbController.getNumber,
   // accountSID: Deno.env.get('TWILIO_ACCOUNT_SID')!,
   // authToken: Deno.env.get('TWILIO_AUTH_TOKEN')!,
-}
+}            
 
 // Initializing the Bedrock library with the above parameters
 const Bedrock = initLocal(params);
