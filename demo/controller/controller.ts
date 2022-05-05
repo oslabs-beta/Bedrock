@@ -13,12 +13,12 @@ const dbController: Controller = {
       const foundUser: resObject | any = await Users.findOne({username})
       const found = await foundUser;
       if (found) {
-        console.log('Username already exists in the database')
+        // console.log('Username already exists in the database')
         ctx.response.body = {message: 'A user by this name already exists'};
         throw new Error;
       }
       else{
-        console.log(">>>GOING TO CREATE A USER!<<<");
+        // console.log(">>>GOING TO CREATE A USER!<<<");
         const secret = await generateTOTPSecret();
         const user = {
           username: username,
@@ -30,11 +30,11 @@ const dbController: Controller = {
         try {          
           const addedUser: resObject | any = await Users.insertOne(user);
           ctx.response.body = await addedUser;
-          console.log('--> user added to db', addedUser);
+          // console.log('--> user added to db', addedUser);
           return next();
         } 
         catch (err) {
-          console.log('Error when adding user');
+          // console.log('Error when adding user');
           if (isHttpError(err)){
             ctx.response.status = err.status;
           } else {
@@ -46,7 +46,7 @@ const dbController: Controller = {
       }
     }
     catch (err) {
-      console.log('Error when finding user in the database');
+      // console.log('Error when finding user in the database');
       if (isHttpError(err)){
         ctx.response.status = err.status;
       } else {
@@ -66,26 +66,26 @@ const dbController: Controller = {
     try {
       const foundUser = await Users.findOne({username})
       const found = await foundUser;
-      console.log("FOUND: ", found);
+      // console.log("FOUND: ", found);
       if (found) {
         // check that password passed in (bodyValue) matches found.password (pw in DB)
         if (password === found.password) {
-          console.log('Password matches')
+          // console.log('Password matches')
           ctx.response.body = true;
           
         } else {
-          console.log('Bad password')
+          // console.log('Bad password')
           ctx.response.body = false;
         }
         return next();
       } else {
-        console.log("Couldn't find username in the database")
+        // console.log("Couldn't find username in the database")
         ctx.response.body = false;
         return next();
       }
     }
     catch (err) {
-      console.log('Error when finding user in the database');
+      // console.log('Error when finding user in the database');
       if (isHttpError(err)){
         ctx.response.status = err.status;
       } else {
@@ -100,23 +100,23 @@ const dbController: Controller = {
     try {
       const foundUser = await Users.findOne({username})
       const found = await foundUser;
-      console.log("FOUND: ", found);
+      // console.log("FOUND: ", found);
       if (found) {
         // check that password passed in (bodyValue) matches found.password (pw in DB)
         if (password === found.password) {
-          console.log('Password matches')
+          // console.log('Password matches')
           return true;
         } else {
-          console.log('Bad password')
+          // console.log('Bad password')
           return false;
         }
       } else {
-        console.log("Couldn't find username in the database")
+        // console.log("Couldn't find username in the database")
         return false;
       }
     }
     catch (err) {
-      console.log('Error when finding user in the database');
+      // console.log('Error when finding user in the database');
       return false;
     }
   },

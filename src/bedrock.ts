@@ -26,11 +26,11 @@ export type Strategy = 'Local Strategy' | 'Github Strategy';
 // export type Strategy = 'Github Strategy'
 
 //Main Function
-export function initLocal(strategy: Strategy, params: LocalStrategyParams): LocalStrategy {
+export function initLocal(params: LocalStrategyParams): LocalStrategy {
   return new LocalStrategy(params);
 }
 
-export function initOAuth(strategy: Strategy, params: OAuthStrategyParams): GithubStrategy {
+export function initOAuth(params: OAuthStrategyParams): GithubStrategy {
   return new GithubStrategy(params);
 }
 
