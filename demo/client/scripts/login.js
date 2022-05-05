@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
       })
     }).then((body) => body.json()).then((body) => {
       
-      if (body.successful) {
+      if (!body.successful) {
         const rootDiv = document.getElementById('login-fields');
         const mfaButton = document.createElement('button');
         mfaButton.setAttribute('type', 'button');
@@ -33,11 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
         rootDiv.appendChild(codeEntry);
         rootDiv.appendChild(mfaButton);
       } else {
-        const rootDiv = document.getElementById('login-wrapper');
-        const errorMsg = document.createElement('span');
-        errorMsg.innerText = 'Incorrect username and/or password';
-        errorMsg.style.cssText += 'color:red;font-weight:700;font-size:16px';
-        rootDiv.appendChild(errorMsg);
+        document.getElementById('Username').value = '';
+        document.getElementById('Password').value = '';
+        alert('Incorrect username and/or password! Please try again');
       }
     })
   }

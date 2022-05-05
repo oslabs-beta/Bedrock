@@ -1,8 +1,10 @@
 import { Router, Context, helpers } from "https://deno.land/x/oak/mod.ts";
+import dbController from '../controller/controller.ts';
 
-export const mainRouter = new Router();
 
-mainRouter.get('/', async (ctx: Context) => {
+export const oAuthRouter = new Router();
+
+oAuthRouter.get('/', async (ctx: Context) => {
   await ctx.send({
     root: `${Deno.cwd()}/demo/client`,
     path: `index.html`,
@@ -10,7 +12,7 @@ mainRouter.get('/', async (ctx: Context) => {
   return;
 });
 
-mainRouter.post('/login', (ctx: Context) => {
+oAuthRouter.post('/login', (ctx: Context) => {
   ctx.response.body = {
     successful : true,
   };
@@ -18,7 +20,7 @@ mainRouter.post('/login', (ctx: Context) => {
   return;
 })
 
-mainRouter.get('/secret', async (ctx: Context) => {
+oAuthRouter.get('/secret', async (ctx: Context) => {
   console.log('Secret hit');
   await ctx.send({
     root: `${Deno.cwd()}/demo/client`,
@@ -27,12 +29,11 @@ mainRouter.get('/secret', async (ctx: Context) => {
   return;
 });
 
-mainRouter.get('/:value', async (ctx: Context) => {
+oAuthRouter.get('/:value', async (ctx: Context) => {
   const path = helpers.getQuery(ctx, {mergeParams: true}).value;
   if (path === 'favicon.ico') {
     ctx.response.status = 200;
   } else {
-    
     await ctx.send({
       root: `${Deno.cwd()}/demo/client`,
       path: `${path}`,
@@ -41,7 +42,7 @@ mainRouter.get('/:value', async (ctx: Context) => {
   return;
 });
 
-mainRouter.get('/imgs/:image', async (ctx: Context) => {
+oAuthRouter.get('/imgs/:image', async (ctx: Context) => {
   const path = helpers.getQuery(ctx, {mergeParams: true}).image;
   await ctx.send({
     root: `${Deno.cwd()}/demo/client/imgs`,
@@ -50,7 +51,7 @@ mainRouter.get('/imgs/:image', async (ctx: Context) => {
   return;
 });
 
-mainRouter.get('/scripts/:script', async (ctx: Context) => {
+oAuthRouter.get('/scripts/:script', async (ctx: Context) => {
   const path = helpers.getQuery(ctx, {mergeParams: true}).script;
   await ctx.send({
     root: `${Deno.cwd()}/demo/client/scripts`,
@@ -59,7 +60,7 @@ mainRouter.get('/scripts/:script', async (ctx: Context) => {
   return;
 });
 
-mainRouter.get('/stylesheets/:sheet', async (ctx: Context) => {
+oAuthRouter.get('/stylesheets/:sheet', async (ctx: Context) => {
   const path = helpers.getQuery(ctx, {mergeParams: true}).sheet;
   await ctx.send({
     root: `${Deno.cwd()}/demo/client/stylesheets`,

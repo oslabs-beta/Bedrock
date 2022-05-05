@@ -19,28 +19,3 @@ interface UserSchema {
 
 export const db = client.database("denotestdb");
 export const Users = db.collection<UserSchema>("users");
-
-
-
-
-
-// console.log('well, it didn\'t break')
-//////////insertuser test////////////
-// const insertTest = await Users.insertOne({    
-//   username: 'eric',
-//   password: 'eric1',
-//   phone: '7346460635',
-//   email: 'bedrock.deno@gmail.com',
-//   secret: '123456789',
-// });
-
-//insertTest();
-
-//////////finduser test////////////
-// async function findUser (userid: string) {
-//     const user1 = await users.findOne({_id: userid})
-//     console.log(await user1);
-//     return user1;
-// };
-// findUser('0001');
-
