@@ -80,6 +80,11 @@ MFARouter.get('/secret.html', Bedrock.verifyAuth, async (ctx: Context) => {
   return;
 });
 
+MFARouter.get('/logout', Bedrock.signOut, (ctx: Context) => {
+  ctx.response.redirect('/');
+  return;
+});
+
 MFARouter.get('/:value', async (ctx: Context) => {
   console.log('hit!');
   const path = helpers.getQuery(ctx, {mergeParams: true}).value;
