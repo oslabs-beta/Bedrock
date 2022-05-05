@@ -7,13 +7,13 @@ export type LocalStrategyParams = {
   checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_enabled: true;
   mfa_type: "Token"
-  readCreds?: (ctx: Context) => string[];
+  readCreds?: (ctx: Context) => Promise<string[]>;
   getSecret: (username: string) => Promise<string>;
 } | {
   checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_enabled: true;
   mfa_type: "SMS"
-  readCreds?: (ctx: Context) => string[];
+  readCreds?: (ctx: Context) => Promise<string[]>;
   getSecret: (username: string) => Promise<string>;
   getNumber: (username: string) => Promise<string>;
   accountSID: string;
@@ -24,16 +24,6 @@ export type LocalStrategyParams = {
   readCreds?: (ctx: Context) => string[];
 }
 
-// export interface LocalStrategyInterface {
-//   checkCreds: boolean;
-//   mfa_enabled: boolean; 
-//   getSecret?: string;
-//   readCreds?: string[];
-//   mfa_type?: string;
-//   accountSID?: string;
-//   authToken?: string;
-//   getNumber?: string;
-// }
 /**
  * Class LocalStrategy has 2 REQUIRED properties: checkCreds and mfa_enabled
  * All other properties are optional, and will be subjected to type LocalStrategyParams
@@ -42,7 +32,7 @@ export class LocalStrategy {
   checkCreds: ((username: string, password: string) => Promise<boolean>);
   mfa_enabled: boolean;
   getSecret?: (username: string) => Promise<string>;
-  readCreds?: ((ctx: Context) => string[]);
+  readCreds?: ((ctx: Context) => Promise<string[]>);
   mfa_type?: string;
   accountSID?: string;
   authToken?: string;
@@ -81,10 +71,11 @@ export class LocalStrategy {
         credentials = decodedAuth.split(":");
       }
     } else {
-      credentials = this.readCreds(ctx);
+      credentials = await this.readCreds(ctx);
     }
 
     const [username, password] = [credentials[0], credentials[1]];
+    console.log(username, password);
     await ctx.state.session.set("username", username);
 
     if (await this.checkCreds(username, password)) {
@@ -95,7 +86,7 @@ export class LocalStrategy {
       await ctx.state.session.set('isLoggedIn', false);
       ctx.state.localVerified = false;
     }
-    console.log(await ctx.state.session);
+    // console.log(await ctx.state.session);
 
     next();
     // Developer needs to check the state property localVerified to redirect user
@@ -114,10 +105,10 @@ export class LocalStrategy {
    * If isLoggedIn is false, will return message stating client is "Not currently signed in"
    */
   verifyAuth = async (ctx: Context, next: () => Promise<unknown>) => {
-    console.log('route hit - details below');
-    console.log('isLoggedIn:', await ctx.state.session.get('isLoggedIn'));
-    console.log('MFA Enabled:', this.mfa_enabled);
-    console.log('MFA success', await ctx.state.session.get('mfa_success'));
+    // console.log('route hit - details below');
+    // console.log('isLoggedIn:', await ctx.state.session.get('isLoggedIn'));
+    // console.log('MFA Enabled:', this.mfa_enabled);
+    // console.log('MFA success', await ctx.state.session.get('mfa_success'));
 
     if (await ctx.state.session.has('isLoggedIn') && await ctx.state.session.get('isLoggedIn')) {
       console.log('local auth worked');
@@ -126,11 +117,14 @@ export class LocalStrategy {
         return next();
       }
     }
-    ctx.response.status = 401;
-    ctx.response.body = {
-      success: false,
-      message: "Not currently signed in"
-    };
+    //do we need to let the developer provide a page to redirect to?
+    console.log('auth failed');
+    ctx.response.redirect('/blocked.html');
+    // ctx.response.status = 401;
+    // ctx.response.body = {
+    //   success: false,
+    //   message: "Not currently signed in"
+    // };
     return;
   }
   /**
@@ -142,13 +136,17 @@ export class LocalStrategy {
    * Checks to see if the input code from client matches the generated TOTP
    *  Note: the developer will need to ensure that the client's MFA input is passed into the 
       context.request body as the property, 'code'
-   * If verified, will initialize session 'mfa_success' as set to true. Else, will initialize to false
+   * If verified, will initialize session 'mfa_success' and add mfaVerified property on ctx.state as set to true. Else, will initialize to false
+      The developer can use ctx.state.mfaVerified to determine if client's mfa check was successful or not
    */
   checkMFA = async (ctx: Context, next: () => Promise<unknown>) => {
     const body = await ctx.request.body();
     const bodyValue = await body.value;
     const mfaSecret = await this.getSecret!(await ctx.state.session.get('username'));
     const currentTOTP = await generateTOTP(mfaSecret);
+
+    console.log(currentTOTP);
+    console.log(bodyValue.code);
 
     const verified = currentTOTP.some((totp) => {
       return totp === bodyValue.code;

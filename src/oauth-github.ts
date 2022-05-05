@@ -53,6 +53,7 @@ export class GithubStrategy {
   sendRedirect = (ctx: Context): void => {
     //console.log('--> going through /OAuth endpoint')
     ctx.response.redirect(this.createURI());
+    return;
   }
   /**
    *  
@@ -67,6 +68,7 @@ export class GithubStrategy {
 
     if (state !== this.state) {
       console.log('State validation on incoming response failed')
+      ctx.state.session.set("isLoggedIn", false);
       ctx.response.status = 401;
       ctx.response.body = {
         success: false,
@@ -94,6 +96,7 @@ export class GithubStrategy {
       next();
     }
     catch (err) {
+      ctx.state.session.set("isLoggedIn", false);
       ctx.response.status = 401;
       ctx.response.body = {
         success: false,
@@ -111,11 +114,12 @@ export class GithubStrategy {
         return next();
       }
     }
-    ctx.response.status = 401;
-    ctx.response.body = {
-      success: false,
-      message: "Not currently signed in"
-    };
+    ctx.response.redirect('/blocked.html');
+    // ctx.response.status = 401;
+    // ctx.response.body = {
+    //   success: false,
+    //   message: "Not currently signed in"
+    // };
     return;
   }
 
