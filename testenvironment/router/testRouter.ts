@@ -4,7 +4,7 @@ import { init } from '../../src/bedrock.ts'
 import { LocalStrategyParams } from '../../src/LocalStrategy.ts'
 import "https://deno.land/x/dotenv/load.ts";
 
-export const testRouter = new Router();
+// export const testRouter = new Router();
 
 const params: LocalStrategyParams = {
   mfa_enabled : true,
@@ -46,3 +46,14 @@ testRouter.get('/signout', Bedrock.signOut, (ctx: Context) => {
   ctx.response.status = 200;
   return;
 })
+
+/**
+ * import { Router, Context, helpers } from "https://deno.land/x/oak/mod.ts";
+ * 
+ * helpers.getQuery(ctx, {mergeParams: true});
+ * {
+ *  code : 91234019j20i3j1o23,
+ *  state : aoidsjfoiajowineqfr,
+ * }
+ * 
+ */
