@@ -1,6 +1,6 @@
 import { TwilioSMS } from './twilioSMS.ts';
 import "https://deno.land/x/dotenv/load.ts";
-import { SMSRequest, Incoming } from '../types.ts'
+import { SMSRequest, Incoming } from './types.ts'
 
 const accountSid: string = <string>(
  Deno.env.get('TWILIO_ACCOUNT_SID')
@@ -35,7 +35,7 @@ const message: Incoming = {
 
 const secret = 'JDKSAJIWDJLIWJIQDJIDSADA4213DASD';
 
-const helper = new TwilioSMS(accountSid, keySid, secret, authToken);
+const helper = new TwilioSMS(accountSid, secret, authToken);
 //helper.sendSms(message).subscribe(console.log);
 console.log(await helper.sendSms(message));
 //deno run --allow-env --allow-net --allow-read src/twilioSMStest.ts

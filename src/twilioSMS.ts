@@ -1,6 +1,6 @@
 import * as base64 from "https://denopkg.com/chiefbiiko/base64/mod.ts";
 import { generateTOTP } from './totp.ts'
-import {SMSRequest, Incoming} from '../types.ts'
+import { SMSRequest, Incoming } from './types.ts'
 
 /**
  * TwilioSMS class requires 3 passed in properties: 

@@ -1,6 +1,6 @@
 import { Router, Context } from "https://deno.land/x/oak/mod.ts";
 import { initOAuth } from '../../src/bedrock.ts'
-import { OAuthStrategyParams } from '../../src/oauth-github.ts'
+import { OAuthStrategyParams } from '../../src/types.ts'
 import "https://deno.land/x/dotenv/load.ts";
 
 export const oAuthRouter = new Router();
