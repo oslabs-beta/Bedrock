@@ -19,8 +19,9 @@
 */
 
 // Interface definitions
-import { LocalStrategy, LocalStrategyParams } from "./LocalStrategy.ts"
-import { GithubStrategy, OAuthStrategyParams } from "./oauth-github.ts"
+import { LocalStrategy} from "./LocalStrategy.ts"
+import { GithubStrategy} from "./oauth-github.ts"
+import {LocalStrategyParams, OAuthStrategyParams}from '../types.ts'
 
 export type Strategy = 'Local Strategy' | 'Github Strategy';
 // export type Strategy = 'Github Strategy'

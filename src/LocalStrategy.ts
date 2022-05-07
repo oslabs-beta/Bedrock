@@ -1,28 +1,8 @@
 import { Context } from "https://deno.land/x/oak/mod.ts";
 import { decode } from "https://deno.land/std@0.137.0/encoding/base64.ts";
 import { generateTOTP } from "./totp.ts";
-import { TwilioSMS, Incoming } from "./twilioSMS.ts";
-
-export type LocalStrategyParams = {
-  checkCreds: (username: string, password: string) => Promise<boolean>;
-  mfa_enabled: true;
-  mfa_type: "Token"
-  readCreds?: (ctx: Context) => Promise<string[]>;
-  getSecret: (username: string) => Promise<string>;
-} | {
-  checkCreds: (username: string, password: string) => Promise<boolean>;
-  mfa_enabled: true;
-  mfa_type: "SMS"
-  readCreds?: (ctx: Context) => Promise<string[]>;
-  getSecret: (username: string) => Promise<string>;
-  getNumber: (username: string) => Promise<string>;
-  accountSID: string;
-  authToken: string;
-} | {
-  checkCreds: (username: string, password: string) => Promise<boolean>;
-  mfa_enabled: false;
-  readCreds?: (ctx: Context) => string[];
-}
+import { TwilioSMS} from "./twilioSMS.ts";
+import { LocalStrategyParams, Incoming } from "../types.ts"
 
 /**
  * Class LocalStrategy has 2 REQUIRED properties: checkCreds and mfa_enabled

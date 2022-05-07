@@ -1,18 +1,7 @@
 import * as base64 from "https://denopkg.com/chiefbiiko/base64/mod.ts";
-import { Observable, from, timer } from 'https://cdn.skypack.dev/rxjs';
 import { generateTOTP } from './totp.ts'
+import {SMSRequest, Incoming} from '../types.ts'
 
-export interface SMSRequest {
-  [index: string]: string;
-  From: string; //the twilio phone number to use to send an SMS
-  To: string; //phone number to receive SMS
-  Body: string; //SMS content
-}
-
-export interface Incoming {
-  From: string;
-  To: string;
-}
 /**
  * TwilioSMS class requires 3 passed in properties: 
  *  AccountSID and AuthToken (provided by Twilio upon account creation)

@@ -1,15 +1,7 @@
 // import { OAuthStrategyParams } from './bedrock.ts'
 import { Context, helpers } from "https://deno.land/x/oak/mod.ts";
+import { OAuthStrategyParams }from '../types.ts'
 
-
-export type OAuthStrategyParams = {
-  client_id: string;
-  client_secret: string;
-  redirect_uri: string;
-  login?: string;
-  scope?: string;
-  allow_signup?: string;
-}
 
 export class GithubStrategy {
   client_id: string;
