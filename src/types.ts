@@ -1,5 +1,5 @@
 import { Context } from "./deps.ts";
-
+export type { RouterMiddleware } from 'https://deno.land/x/oak@v10.5.1/mod.ts'
 export type LocalStrategyParams = {
   checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_enabled: true;

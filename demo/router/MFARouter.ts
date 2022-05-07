@@ -1,8 +1,7 @@
 import { Router, Context, helpers } from "../../src/deps.ts";
 import dbController from '../controller/controller.ts';
 import { initLocal, initOAuth } from '../../src/bedrock.ts'
-import { LocalStrategyParams } from '../../src/types.ts'
-import { OAuthStrategyParams } from '../../src/types.ts'
+import { LocalStrategyParams, OAuthStrategyParams} from '../../src/types.ts'
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
 
 export const MFARouter = new Router();
