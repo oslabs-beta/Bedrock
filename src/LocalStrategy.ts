@@ -1,5 +1,4 @@
-import { Context } from "https://deno.land/x/oak/mod.ts";
-import { decode } from "https://deno.land/std@0.137.0/encoding/base64.ts";
+import { decode, Context} from "./deps.ts";
 import { generateTOTP } from "./totp.ts";
 import { TwilioSMS} from "./twilioSMS.ts";
 import { LocalStrategyParams, Incoming } from "./types.ts"

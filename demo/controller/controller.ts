@@ -1,4 +1,4 @@
-import { isHttpError, RouterMiddleware, Context, } from "https://deno.land/x/oak/mod.ts";
+import { isHttpError, RouterMiddleware, Context, } from "../../src/deps.ts";
 import { Users } from '../server/model.ts';
 import { generateTOTPSecret} from '../../src/totp.ts';
 

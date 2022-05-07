@@ -1,4 +1,4 @@
-import * as base64 from "https://denopkg.com/chiefbiiko/base64/mod.ts";
+import { encode } from './deps.ts';
 import { generateTOTP } from './totp.ts'
 import { SMSRequest, Incoming } from './types.ts'
 
@@ -12,7 +12,7 @@ export class TwilioSMS {
 
   constructor(private accountSID: string, private secret: string, private authToken: string) {
     //building the basic access authentication header that must be sent with every HTTP request to the Twilio API, which requires base64 encoding
-    this.authorizationHeader = 'Basic ' + base64.fromUint8Array(new TextEncoder().encode(`${accountSID}:${authToken}`));
+    this.authorizationHeader = 'Basic ' + encode(`${accountSID}:${authToken}`);
   }
 
   //async function 
@@ -47,7 +47,7 @@ export class TwilioSMS {
     //console.log('this is data!: ', data);
     const response = await data.json();
     const { body } = response;
-    //console.log('this is response!:', response);
+    console.log('this is response!:', response);
     
     //returning only the body of the response object 
     return body;

@@ -1,4 +1,4 @@
-import { Context } from "https://deno.land/x/oak/mod.ts";
+import { Context } from "./deps.ts";
 
 export type LocalStrategyParams = {
   checkCreds: (username: string, password: string) => Promise<boolean>;

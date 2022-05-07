@@ -1,5 +1,5 @@
 import { TwilioSMS } from './twilioSMS.ts';
-import "https://deno.land/x/dotenv/load.ts";
+import "https://deno.land/std@0.138.0/dotenv/load.ts";
 import { SMSRequest, Incoming } from './types.ts'
 
 const accountSid: string = <string>(
@@ -33,8 +33,8 @@ const message: Incoming = {
   To: '+14434720873',
  };
 
-const secret = 'JDKSAJIWDJLIWJIQDJIDSADA4213DASD';
-
+const secret = 'JDKSAJIWDJLIWJIQDJIDSADA4223DASD';
+console.log(accountSid);
 const helper = new TwilioSMS(accountSid, secret, authToken);
 //helper.sendSms(message).subscribe(console.log);
 console.log(await helper.sendSms(message));

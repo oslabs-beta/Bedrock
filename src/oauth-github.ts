@@ -1,5 +1,5 @@
 // import { OAuthStrategyParams } from './bedrock.ts'
-import { Context, helpers } from "https://deno.land/x/oak/mod.ts";
+import { Context, helpers } from "./deps.ts";
 import { OAuthStrategyParams }from './types.ts'
 
 
