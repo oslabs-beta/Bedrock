@@ -1,5 +1,6 @@
-import { TwilioSMS, SMSRequest, Incoming } from './twilioSMS.ts';
+import { TwilioSMS } from './twilioSMS.ts';
 import "https://deno.land/x/dotenv/load.ts";
+import { SMSRequest, Incoming } from '../types.ts'
 
 const accountSid: string = <string>(
  Deno.env.get('TWILIO_ACCOUNT_SID')
