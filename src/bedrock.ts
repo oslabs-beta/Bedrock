@@ -22,7 +22,9 @@
 import { LocalStrategy } from "./LocalStrategy.ts";
 import { GoogleOAuth } from "./OAuthStrategies/GoogleOAuth.ts";
 import { GithubOAuth } from "./OAuthStrategies/GithubOAuth.ts";
+// import { LinkedinOAuth } from './OAuthStrategies/LinkedinOAuth.ts';
 import {
+  LinkedinOAuthParams,
   GithubOAuthParams,
   GoogleOAuthParams,
   LocalStrategyParams,
@@ -36,7 +38,7 @@ export function initLocal(params: LocalStrategyParams): LocalStrategy {
   return new LocalStrategy(params);
 }
 
-export function initOAuth(params: GithubOAuthParams | GoogleOAuthParams) {
+export function initOAuth(params: GithubOAuthParams | GoogleOAuthParams | LinkedinOAuthParams) {
   switch (params.provider) {
     // case 'Local' && typeof params === LocalStrategyParams:
     //   return new LocalStrategy(params);
@@ -44,6 +46,8 @@ export function initOAuth(params: GithubOAuthParams | GoogleOAuthParams) {
       return new GoogleOAuth(params);
     case "Github":
       return new GithubOAuth(params);
+    // case "Linkedin":
+    //   return new LinkedinOAuth(params);
     default:
       throw new Error(
         "Invalid input on initOauth constuctor - see log for more information",
