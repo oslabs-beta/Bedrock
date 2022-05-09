@@ -1,6 +1,5 @@
 import { Application } from "../../src/deps.ts";
 import { MFARouter } from '../router/MFARouter.ts';
-import { oAuthRouter } from '../router/oAuthRouter.ts';
 import { Session } from "../../src/deps.ts";
 
 const app = new Application();

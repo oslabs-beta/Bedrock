@@ -1,5 +1,8 @@
 import { Context } from "./deps.ts";
+
 export type { RouterMiddleware } from 'https://deno.land/x/oak@v10.5.1/mod.ts'
+
+// Local Authentication Types
 export type LocalStrategyParams = {
   checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_enabled: true;
@@ -21,15 +24,6 @@ export type LocalStrategyParams = {
   readCreds?: (ctx: Context) => string[];
 }
 
-export type OAuthStrategyParams = {
-  client_id: string;
-  client_secret: string;
-  redirect_uri: string;
-  login?: string;
-  scope?: string;
-  allow_signup?: string;
-}
-
 export interface SMSRequest {
   [index: string]: string;
   From: string; //the twilio phone number to use to send an SMS
@@ -40,4 +34,60 @@ export interface SMSRequest {
 export interface Incoming {
   From: string;
   To: string;
+}
+
+// OAuth Types
+export type Provider = "Github" | "Google" | "LinkedIn" | "Facebook" | "Discord";
+
+export interface GithubOAuthParams {
+  provider: 'Github'
+  client_id: string;
+  client_secret: string;
+  redirect_uri: string;
+  login?: string;
+  scope?: string;
+  allow_signup?: string;
+}
+
+export interface GoogleOAuthParams {
+  provider: 'Google';
+  client_id: string;
+  client_secret: string;
+  scope: string;
+  redirect_uri: string;
+  response_type: "code";
+  access_type?: string;
+  state?: string;
+  include_granted_scopes?: string;
+  login_hint?: string;
+  prompt?: "none" | "consent" | "select_account";
+}
+
+export interface DiscordOAuthParams {
+  provider: 'Discord' | 'LinkedIn';
+  client_id: string;
+  client_secret: string;
+  grant_type: "authorization_code";
+  code: string;
+  redirect_uri: string;
+  state?: string;
+}
+
+export interface LinkedinOAuthParams {
+  provider: 'Linkedin';
+  client_id: string;
+  client_secret: string;
+  scope: string;
+  redirect_uri: string;
+  response_type: "code";
+  state?: string;
+}
+
+export interface FacebookOAuthParams {
+  provider: 'Facebook'
+  client_id: string;
+  redirect_uri: string;
+  state: string;
+  response_type: "code";
+  scope: string;
 }

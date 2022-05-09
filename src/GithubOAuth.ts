@@ -1,21 +1,23 @@
 // import { OAuthStrategyParams } from './bedrock.ts'
 import { Context, helpers } from "./deps.ts";
-import { OAuthStrategyParams }from './types.ts'
+import { GithubOAuthParams, Provider } from './types.ts'
 
 
-export class GithubStrategy {
+export class GithubOAuth {
+  provider: Provider;
   client_id: string;
   client_secret: string;
   redirect_uri: string;
-  state: string = '';
+  state = '';
   login?: string;
   scope?: string;
   allow_signup?: string;
 
-  constructor(stratParams: OAuthStrategyParams) {
+  constructor(stratParams: GithubOAuthParams) {
     this.client_id = stratParams.client_id;
     this.client_secret = stratParams.client_secret;
     this.redirect_uri = stratParams.redirect_uri;
+    this.provider = stratParams.provider;
     Object.assign(this, stratParams)!
   }
   /**
@@ -29,11 +31,11 @@ export class GithubStrategy {
     if (this.scope != undefined) {
       uri += `scope=${this.scope}&`;
     }
-    const alphanum: string = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const alphanum: string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     for (let i = 0; i < 20; i++) {
       this.state += alphanum[Math.floor(Math.random() * alphanum.length)];
     }
-    console.log('this.state: ', this.state)
+    //console.log('this.state: ', this.state)
     uri += `redirect_uri=${this.redirect_uri}&state=${this.state}&client_id=${this.client_id}`;
     return uri;
   }

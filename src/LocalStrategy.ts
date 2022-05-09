@@ -1,4 +1,4 @@
-import { decode, Context} from "./deps.ts";
+import { decode64, Context} from "./deps.ts";
 import { generateTOTP } from "./totp.ts";
 import { TwilioSMS} from "./twilioSMS.ts";
 import { LocalStrategyParams, Incoming } from "./types.ts"
@@ -45,7 +45,7 @@ export class LocalStrategy {
         if (authHeaders.startsWith('Basic ')) {
           authHeaders = authHeaders.slice(6);
         }
-        const auth = decode(authHeaders);
+        const auth = decode64(authHeaders);
         const decodedAuth = new TextDecoder().decode(auth!);
         credentials = decodedAuth.split(":");
       }

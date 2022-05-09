@@ -20,18 +20,24 @@
 
 // Interface definitions
 import { LocalStrategy} from "./LocalStrategy.ts"
-import { GithubStrategy} from "./oauth-github.ts"
-import {LocalStrategyParams, OAuthStrategyParams}from './types.ts'
+import { GithubOAuth } from "./GithubOAuth.ts"
+import { LocalStrategyParams, GoogleOAuthParams, GithubOAuthParams, Provider } from './types.ts'
 
-export type Strategy = 'Local Strategy' | 'Github Strategy';
+// export type Strategy = 'Local Strategy' | 'Github Strategy';
 // export type Strategy = 'Github Strategy'
 
-//Main Function
+//Main Functions
 export function initLocal(params: LocalStrategyParams): LocalStrategy {
   return new LocalStrategy(params);
 }
 
-export function initOAuth(params: OAuthStrategyParams): GithubStrategy {
-  return new GithubStrategy(params);
+export function initOAuth(params: GithubOAuthParams | GoogleOAuthParams ){
+  switch(params.provider) {
+    // case 'Local' && typeof params === LocalStrategyParams:
+    //   return new LocalStrategy(params);
+    case 'Github':
+      return new GithubOAuth(params);
+    default:
+      throw new Error("Invalid input on initOauth constuctor - see log for more information");
+  }
 }
-

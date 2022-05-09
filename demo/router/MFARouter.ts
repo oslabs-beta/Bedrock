@@ -1,7 +1,7 @@
 import { Router, Context, helpers } from "../../src/deps.ts";
 import dbController from '../controller/controller.ts';
 import { initLocal, initOAuth } from '../../src/bedrock.ts'
-import { LocalStrategyParams, OAuthStrategyParams} from '../../src/types.ts'
+import { LocalStrategyParams, GithubOAuthParams} from '../../src/types.ts'
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
 
 export const MFARouter = new Router();
@@ -22,7 +22,8 @@ const params: LocalStrategyParams = {
   // authToken: Deno.env.get('TWILIO_AUTH_TOKEN')!,
 }
 
-const oAuthparams: OAuthStrategyParams = {
+const oAuthparams: GithubOAuthParams = {
+  provider: 'Github',
   client_id: Deno.env.get('CLIENT_ID')!,
   client_secret: Deno.env.get('CLIENT_SECRET')!,
   redirect_uri: Deno.env.get('AUTH_CALLBACK_URL')!,
@@ -124,3 +125,5 @@ MFARouter.get('/stylesheets/:sheet', async (ctx: Context) => {
   });
   return;
 });
+
+//deno run --allow-read --allow-env
