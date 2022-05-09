@@ -1,6 +1,7 @@
-import { isHttpError, RouterMiddleware, Context, } from "https://deno.land/x/oak/mod.ts";
+import { isHttpError, Context } from "../../src/deps.ts";
 import { Users } from '../server/model.ts';
 import { generateTOTPSecret} from '../../src/totp.ts';
+import { RouterMiddleware } from '../../src/types.ts'
 
 const dbController: Controller = { 
   // create User

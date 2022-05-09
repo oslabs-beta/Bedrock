@@ -1,7 +1,7 @@
-import { Application } from "https://deno.land/x/oak/mod.ts";
+import { Application } from "../../src/deps.ts";
 import { MFARouter } from '../router/MFARouter.ts';
 import { oAuthRouter } from '../router/oAuthRouter.ts';
-import { Session } from "https://deno.land/x/oak_sessions/mod.ts";
+import { Session } from "../../src/deps.ts";
 
 const app = new Application();
 const session = new Session();

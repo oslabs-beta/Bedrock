@@ -1,29 +1,18 @@
-import * as base64 from "https://denopkg.com/chiefbiiko/base64/mod.ts";
-import { Observable, from, timer } from 'https://cdn.skypack.dev/rxjs';
+import { encode64 } from './deps.ts';
 import { generateTOTP } from './totp.ts'
+import { SMSRequest, Incoming } from './types.ts'
 
-export interface SMSRequest {
-  [index: string]: string;
-  From: string; //the twilio phone number to use to send an SMS
-  To: string; //phone number to receive SMS
-  Body: string; //SMS content
-}
-
-export interface Incoming {
-  From: string;
-  To: string;
-}
 /**
  * TwilioSMS class requires 3 passed in properties: 
  *  AccountSID and AuthToken (provided by Twilio upon account creation)
  *  Secret - associated secret with the username 
  */
 export class TwilioSMS {
-  private authorizationHeader: string;
+  public authorizationHeader: string;
 
   constructor(private accountSID: string, private secret: string, private authToken: string) {
     //building the basic access authentication header that must be sent with every HTTP request to the Twilio API, which requires base64 encoding
-    this.authorizationHeader = 'Basic ' + base64.fromUint8Array(new TextEncoder().encode(`${accountSID}:${authToken}`));
+    this.authorizationHeader = 'Basic ' + encode64(`${accountSID}:${authToken}`);
   }
 
   //async function 
@@ -58,7 +47,7 @@ export class TwilioSMS {
     //console.log('this is data!: ', data);
     const response = await data.json();
     const { body } = response;
-    //console.log('this is response!:', response);
+    console.log('this is response!:', response);
     
     //returning only the body of the response object 
     return body;
