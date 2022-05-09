@@ -3,8 +3,8 @@
  * in Deno as well as a pseudorandom secret generator in base32
  */
 
-import { crypto } from "https://deno.land/std@0.136.0/crypto/mod.ts";
-import { decode } from "https://deno.land/std@0.136.0/encoding/base32.ts";
+ import { crypto } from "./deps.ts";
+ import { decode32 } from "./deps.ts";
 
 // HMAC-SHA1 implementation
 async function hmacSHA1(k: Uint8Array, m: Uint8Array): Promise<Uint8Array> {
@@ -103,7 +103,7 @@ export async function generateTOTP(secret:string): Promise<string[]> {
     }
 
     // Decode the secret from base32 to a binary Uint8Array to prepare for HMAC-SHA1
-    const binaryData = decode(secret);
+    const binaryData = decode32(secret);
 
     // Calculate HMAC-SHA1 hash of the secret and the current time
     const hmac = await hmacSHA1(binaryData, timeHex);

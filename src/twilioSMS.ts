@@ -1,4 +1,4 @@
-import { encode } from './deps.ts';
+import { encode64 } from './deps.ts';
 import { generateTOTP } from './totp.ts'
 import { SMSRequest, Incoming } from './types.ts'
 
@@ -8,11 +8,11 @@ import { SMSRequest, Incoming } from './types.ts'
  *  Secret - associated secret with the username 
  */
 export class TwilioSMS {
-  private authorizationHeader: string;
+  public authorizationHeader: string;
 
   constructor(private accountSID: string, private secret: string, private authToken: string) {
     //building the basic access authentication header that must be sent with every HTTP request to the Twilio API, which requires base64 encoding
-    this.authorizationHeader = 'Basic ' + encode(`${accountSID}:${authToken}`);
+    this.authorizationHeader = 'Basic ' + encode64(`${accountSID}:${authToken}`);
   }
 
   //async function 
