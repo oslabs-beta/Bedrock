@@ -36,7 +36,6 @@ body {
 	display: flex;
 	flex: 1 1 auto;
 	justify-content: center;
-	line-height: 8em;
 }
 
 .body-wrapper {
@@ -56,6 +55,12 @@ body {
 	border: 2px white solid;
 	border-radius: 25px;
 	background-color: #666666;
+}
+
+#oauth {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 .login-fields {

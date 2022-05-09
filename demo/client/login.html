@@ -22,13 +22,17 @@
     <div class="body-container">
         <div class="body-wrapper">
             <div class="login-wrapper" id="login-wrapper">
-                Login below:
+                <p>Login below:</p>
                 <div class="login-fields" id="login-fields">
                     <input type="text" placeholder="Username" id="Username">
                     <input type="password" placeholder="Password" id="Password">
                     <button type="button" id="loginButton">Log in</button>
                 </div>
-                <a href="/Oauth/login" id="github"><img src="./imgs/github.png" height="40px" style="border-radius: 10px;" /></a>
+                <div id="oauth">
+                    <a href="/Oauth/github/login" id="github"><img src="./imgs/github.png" height="40px" style="border-radius: 10px;" /></a>
+                    <a href="/Oauth/google/login" id="google"><img src="./imgs/google.png" height="40px" style="border-radius: 10px;" /></a>
+                </div>
+               
             </div>
         </div>
     </div>

@@ -1,7 +1,7 @@
 import { Router, Context, helpers } from "../../src/deps.ts";
 import dbController from '../controller/controller.ts';
 import { initLocal, initOAuth } from '../../src/bedrock.ts'
-import { LocalStrategyParams, GithubOAuthParams} from '../../src/types.ts'
+import { LocalStrategyParams, GithubOAuthParams, GoogleOAuthParams} from '../../src/types.ts'
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
 
 export const MFARouter = new Router();
@@ -22,7 +22,7 @@ const params: LocalStrategyParams = {
   // authToken: Deno.env.get('TWILIO_AUTH_TOKEN')!,
 }
 
-const oAuthparams: GithubOAuthParams = {
+const GithubParams: GithubOAuthParams = {
   provider: 'Github',
   client_id: Deno.env.get('CLIENT_ID')!,
   client_secret: Deno.env.get('CLIENT_SECRET')!,
@@ -32,8 +32,19 @@ const oAuthparams: GithubOAuthParams = {
   // allow_signup? : string;
 };
 
+const GParams: GoogleOAuthParams = {
+  client_id: Deno.env.get('GOOGLE_CLIENT_ID')!,
+  client_secret: Deno.env.get('GOOGLE_CLIENT_SECRET')!,
+  scope: 'openid',
+  redirect_uri: 'http://localhost:8080/oauth/google/token',
+  provider: 'Google',
+  response_type: 'code'
+}
+
 const Bedrock = initLocal(params);
-const BedrockOAuth = initOAuth(oAuthparams);
+const BedrockGithub = initOAuth(GithubParams);
+const BedrockGoogle = initOAuth(GParams);
+// console.log(BedrockGoogle);
 
 MFARouter.get('/', async (ctx: Context) => {
   await ctx.send({
@@ -65,10 +76,19 @@ MFARouter.post('/verifyMFA', Bedrock.checkMFA, (ctx: Context) => {
   }
 })
 
-MFARouter.get('/OAuth/login', BedrockOAuth.sendRedirect);
+MFARouter.get('/OAuth/github/login', BedrockGithub.sendRedirect);
 
-MFARouter.get('/OAuth/github', BedrockOAuth.getToken, (ctx: Context) => {
+MFARouter.get('/OAuth/github/token', BedrockGithub.getToken, (ctx: Context) => {
   ctx.response.redirect('/secret.html');
+});
+
+MFARouter.get('/OAuth/google/login', BedrockGoogle.sendRedirect);
+
+MFARouter.get('/OAuth/google/token', BedrockGoogle.getToken, (ctx: Context) => {
+  ctx.response.redirect('/secret.html')
+  // ctx.response.body = 'Successful redirect';
+  // ctx.response.status = 200;
+  // return;
 });
 
 MFARouter.get('/secret.html', Bedrock.verifyAuth, async (ctx: Context) => {

@@ -1,18 +1,18 @@
 import { Context } from "./deps.ts";
 
-export type { RouterMiddleware } from 'https://deno.land/x/oak@v10.5.1/mod.ts'
+export type { RouterMiddleware } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 
 // Local Authentication Types
 export type LocalStrategyParams = {
   checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_enabled: true;
-  mfa_type: "Token"
+  mfa_type: "Token";
   readCreds?: (ctx: Context) => Promise<string[]>;
   getSecret: (username: string) => Promise<string>;
 } | {
   checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_enabled: true;
-  mfa_type: "SMS"
+  mfa_type: "SMS";
   readCreds?: (ctx: Context) => Promise<string[]>;
   getSecret: (username: string) => Promise<string>;
   getNumber: (username: string) => Promise<string>;
@@ -22,7 +22,7 @@ export type LocalStrategyParams = {
   checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_enabled: false;
   readCreds?: (ctx: Context) => string[];
-}
+};
 
 export interface SMSRequest {
   [index: string]: string;
@@ -37,34 +37,38 @@ export interface Incoming {
 }
 
 // OAuth Types
-export type Provider = "Github" | "Google" | "LinkedIn" | "Facebook" | "Discord";
+export type Provider =
+  | "Github"
+  | "Google"
+  | "LinkedIn"
+  | "Facebook"
+  | "Discord";
 
 export interface GithubOAuthParams {
-  provider: 'Github'
+  provider: "Github";
   client_id: string;
   client_secret: string;
   redirect_uri: string;
   login?: string;
   scope?: string;
   allow_signup?: string;
+  state?: string;
 }
 
 export interface GoogleOAuthParams {
-  provider: 'Google';
+  provider: "Google";
   client_id: string;
   client_secret: string;
   scope: string;
   redirect_uri: string;
   response_type: "code";
-  access_type?: string;
+  access_type?: "online" | "offline";
   state?: string;
-  include_granted_scopes?: string;
-  login_hint?: string;
   prompt?: "none" | "consent" | "select_account";
 }
 
 export interface DiscordOAuthParams {
-  provider: 'Discord' | 'LinkedIn';
+  provider: "Discord" | "LinkedIn";
   client_id: string;
   client_secret: string;
   grant_type: "authorization_code";
@@ -74,7 +78,7 @@ export interface DiscordOAuthParams {
 }
 
 export interface LinkedinOAuthParams {
-  provider: 'Linkedin';
+  provider: "Linkedin";
   client_id: string;
   client_secret: string;
   scope: string;
@@ -84,10 +88,10 @@ export interface LinkedinOAuthParams {
 }
 
 export interface FacebookOAuthParams {
-  provider: 'Facebook'
+  provider: "Facebook";
   client_id: string;
   redirect_uri: string;
   state: string;
-  response_type: "code";
-  scope: string;
+  response_type?: "code";
+  scope?: string;
 }
