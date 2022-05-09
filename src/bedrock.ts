@@ -20,13 +20,12 @@
 
 // Interface definitions
 import { LocalStrategy } from "./LocalStrategy.ts";
-import { GoogleOAuth } from "./GoogleOAuth.ts";
-import { GithubOAuth } from "./GithubOAuth.ts";
+import { GoogleOAuth } from "./OAuthStrategies/GoogleOAuth.ts";
+import { GithubOAuth } from "./OAuthStrategies/GithubOAuth.ts";
 import {
   GithubOAuthParams,
   GoogleOAuthParams,
   LocalStrategyParams,
-  Provider,
 } from "./types.ts";
 
 // export type Strategy = 'Local Strategy' | 'Github Strategy';

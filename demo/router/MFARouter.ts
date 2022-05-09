@@ -44,7 +44,7 @@ const GParams: GoogleOAuthParams = {
 const Bedrock = initLocal(params);
 const BedrockGithub = initOAuth(GithubParams);
 const BedrockGoogle = initOAuth(GParams);
-// console.log(BedrockGoogle);
+
 
 MFARouter.get('/', async (ctx: Context) => {
   await ctx.send({
@@ -85,10 +85,7 @@ MFARouter.get('/OAuth/github/token', BedrockGithub.getToken, (ctx: Context) => {
 MFARouter.get('/OAuth/google/login', BedrockGoogle.sendRedirect);
 
 MFARouter.get('/OAuth/google/token', BedrockGoogle.getToken, (ctx: Context) => {
-  ctx.response.redirect('/secret.html')
-  // ctx.response.body = 'Successful redirect';
-  // ctx.response.status = 200;
-  // return;
+  ctx.response.redirect('/secret.html')  
 });
 
 MFARouter.get('/secret.html', Bedrock.verifyAuth, async (ctx: Context) => {

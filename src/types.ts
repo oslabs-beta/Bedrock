@@ -37,13 +37,6 @@ export interface Incoming {
 }
 
 // OAuth Types
-export type Provider =
-  | "Github"
-  | "Google"
-  | "LinkedIn"
-  | "Facebook"
-  | "Discord";
-
 export interface GithubOAuthParams {
   provider: "Github";
   client_id: string;

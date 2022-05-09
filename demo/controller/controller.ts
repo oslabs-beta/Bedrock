@@ -13,13 +13,11 @@ const dbController: Controller = {
     try {
       const foundUser: resObject | any = await Users.findOne({username})
       const found = await foundUser;
-      if (found) {
-        // console.log('Username already exists in the database')
+      if (found) {        
         ctx.response.body = {message: 'A user by this name already exists'};
         throw new Error;
       }
-      else{
-        // console.log(">>>GOING TO CREATE A USER!<<<");
+      else{        
         const secret = await generateTOTPSecret();
         const user = {
           username: username,
@@ -30,12 +28,10 @@ const dbController: Controller = {
         }
         try {          
           const addedUser: resObject | any = await Users.insertOne(user);
-          ctx.response.body = await addedUser;
-          // console.log('--> user added to db', addedUser);
+          ctx.response.body = await addedUser;          
           return next();
         } 
-        catch (err) {
-          // console.log('Error when adding user');
+        catch (err) {          
           if (isHttpError(err)){
             ctx.response.status = err.status;
           } else {
@@ -46,8 +42,7 @@ const dbController: Controller = {
         }
       }
     }
-    catch (err) {
-      // console.log('Error when finding user in the database');
+    catch (err) {      
       if (isHttpError(err)){
         ctx.response.status = err.status;
       } else {
@@ -60,33 +55,25 @@ const dbController: Controller = {
 
   verifyUser: async (ctx: Context, next: any) => {
     const body = await ctx.request.body();
-    const bodyValue = await body.value;
-    // const username = bodyValue[0];
-    // const password = bodyValue[1];
+    const bodyValue = await body.value;    
     const {username, password} = bodyValue;
     try {
       const foundUser = await Users.findOne({username})
-      const found = await foundUser;
-      // console.log("FOUND: ", found);
-      if (found) {
-        // check that password passed in (bodyValue) matches found.password (pw in DB)
-        if (password === found.password) {
-          // console.log('Password matches')
+      const found = await foundUser;      
+      if (found) {        
+        if (password === found.password) {          
           ctx.response.body = true;
           
-        } else {
-          // console.log('Bad password')
+        } else {          
           ctx.response.body = false;
         }
         return next();
-      } else {
-        // console.log("Couldn't find username in the database")
+      } else {        
         ctx.response.body = false;
         return next();
       }
     }
-    catch (err) {
-      // console.log('Error when finding user in the database');
+    catch (err) {      
       if (isHttpError(err)){
         ctx.response.status = err.status;
       } else {
@@ -100,24 +87,18 @@ const dbController: Controller = {
   checkCreds: async (username: string, password: string): Promise<boolean> => {
     try {
       const foundUser = await Users.findOne({username})
-      const found = await foundUser;
-      // console.log("FOUND: ", found);
-      if (found) {
-        // check that password passed in (bodyValue) matches found.password (pw in DB)
-        if (password === found.password) {
-          // console.log('Password matches')
+      const found = await foundUser;      
+      if (found) {        
+        if (password === found.password) {          
           return true;
-        } else {
-          // console.log('Bad password')
+        } else {          
           return false;
         }
-      } else {
-        // console.log("Couldn't find username in the database")
+      } else {        
         return false;
       }
     }
-    catch (err) {
-      // console.log('Error when finding user in the database');
+    catch (err) {      
       return false;
     }
   },
