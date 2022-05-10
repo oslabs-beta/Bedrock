@@ -132,6 +132,20 @@ const dbController: Controller = {
       throw Error('Error accessing the database');
     }
   },
+
+  getEmail: async (username: string): Promise<string> => {
+    try {
+      const foundUser = await Users.findOne({username});
+      const found = await foundUser;
+      if (found !== undefined){
+        return found.email; 
+      } else {
+        return 'Could not find an email associated with that username';
+      }
+    } catch {
+      throw Error('Error accessing the database');
+    }
+  },
 }
 
 export type Controller = {
@@ -140,6 +154,7 @@ export type Controller = {
   checkCreds: (username: string, password: string) => Promise<boolean>;
   getSecret: (username: string) => Promise<string>;
   getNumber: (username: string) => Promise<string>;
+  getEmail: (username: string) => Promise<string>;
 }
 
 interface resObject {

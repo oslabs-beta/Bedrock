@@ -1,5 +1,6 @@
 import { Context } from "./deps.ts";
 
+export type { SendConfig } from 'https://deno.land/x/denomailer@1.0.1/mod.ts';
 export type { RouterMiddleware } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 
 // Local Authentication Types
@@ -22,7 +23,16 @@ export type LocalStrategyParams = {
   checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_enabled: false;
   readCreds?: (ctx: Context) => string[];
-};
+} | {
+  checkCreds: (username: string, password: string) => Promise<boolean>;
+  mfa_enabled: true;
+  readCreds?: (ctx: Context) => Promise<string[]>;
+  getSecret: (username: string) => Promise<string>;
+  mfa_type: 'Email';
+  clientOptions: ClientOptions;
+  getEmail: (username: string) => Promise<string>;
+  fromAddress: string;
+}
 
 export interface SMSRequest {
   [index: string]: string;
@@ -34,6 +44,19 @@ export interface SMSRequest {
 export interface Incoming {
   From: string;
   To: string;
+}
+
+// Email Client Settings
+export interface ClientOptions {
+  connection: {
+    hostname: string;
+    port?: number;
+    tls?: boolean;
+    auth?: {
+      username: string;
+      password: string;
+    };
+  };
 }
 
 // OAuth Types
