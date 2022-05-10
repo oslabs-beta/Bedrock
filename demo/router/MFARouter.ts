@@ -1,15 +1,26 @@
 import { Router, Context, helpers } from "../../src/deps.ts";
 import dbController from '../controller/controller.ts';
 import { initLocal, initOAuth } from '../../src/bedrock.ts'
-import { LocalStrategyParams, OAuthStrategyParams} from '../../src/types.ts'
+import { LocalStrategyParams, GithubOAuthParams, GoogleOAuthParams, LinkedinOAuthParams, ClientOptions} from '../../src/types.ts'
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
 
 export const MFARouter = new Router();
 
+const clientOptions: ClientOptions = {
+  connection: {
+    hostname: Deno.env.get('EMAIL_HOSTNAME')!,
+    tls: true,
+    auth: {
+      username: Deno.env.get('EMAIL_USERNAME')!,
+      password: Deno.env.get('EMAIL_PASSWORD')!
+    }
+  }
+}
+
 const params: LocalStrategyParams = {
   mfa_enabled : true,
   checkCreds : dbController.checkCreds,
-  mfa_type: "Token",
+  mfa_type: "Email",
   getSecret: dbController.getSecret,
   readCreds: async (ctx: Context): Promise<string[]> => {
     const body = await ctx.request.body();
@@ -17,12 +28,17 @@ const params: LocalStrategyParams = {
     const {username, password} = bodyValue;
     return [username, password];
   },
+  getEmail: dbController.getEmail,
+  clientOptions: clientOptions,
+  fromAddress: Deno.env.get('EMAIL_FROM')!
+  
   // getNumber: dbController.getNumber,
   // accountSID: Deno.env.get('TWILIO_ACCOUNT_SID')!,
   // authToken: Deno.env.get('TWILIO_AUTH_TOKEN')!,
 }
 
-const oAuthparams: OAuthStrategyParams = {
+const GithubParams: GithubOAuthParams = {
+  provider: 'Github',
   client_id: Deno.env.get('CLIENT_ID')!,
   client_secret: Deno.env.get('CLIENT_SECRET')!,
   redirect_uri: Deno.env.get('AUTH_CALLBACK_URL')!,
@@ -31,8 +47,29 @@ const oAuthparams: OAuthStrategyParams = {
   // allow_signup? : string;
 };
 
+const GParams: GoogleOAuthParams = {
+  client_id: Deno.env.get('GOOGLE_CLIENT_ID')!,
+  client_secret: Deno.env.get('GOOGLE_CLIENT_SECRET')!,
+  scope: 'openid',
+  redirect_uri: 'http://localhost:8080/oauth/google/token',
+  provider: 'Google',
+  response_type: 'code'
+}
+
+const LinkedinParams: LinkedinOAuthParams = {
+  provider: "Linkedin",
+  client_id: Deno.env.get('LINKEDIN_CLIENT_ID')!,
+  client_secret: Deno.env.get('LINKEDIN_CLIENT_SECRET')!,
+  scope: 'r_liteprofile',
+  redirect_uri: 'http://localhost:8080/OAuth/linkedin/token',
+  response_type: "code",
+}
+
 const Bedrock = initLocal(params);
-const BedrockOAuth = initOAuth(oAuthparams);
+const BedrockGithub = initOAuth(GithubParams);
+const BedrockGoogle = initOAuth(GParams);
+const BedrockLinkedin = initOAuth(LinkedinParams);
+
 
 MFARouter.get('/', async (ctx: Context) => {
   await ctx.send({
@@ -64,10 +101,22 @@ MFARouter.post('/verifyMFA', Bedrock.checkMFA, (ctx: Context) => {
   }
 })
 
-MFARouter.get('/OAuth/login', BedrockOAuth.sendRedirect);
+MFARouter.get('/OAuth/github/login', BedrockGithub.sendRedirect);
 
-MFARouter.get('/OAuth/github', BedrockOAuth.getToken, (ctx: Context) => {
+MFARouter.get('/OAuth/github/token', BedrockGithub.getToken, (ctx: Context) => {
   ctx.response.redirect('/secret.html');
+});
+
+MFARouter.get('/OAuth/google/login', BedrockGoogle.sendRedirect);
+
+MFARouter.get('/OAuth/google/token', BedrockGoogle.getToken, (ctx: Context) => {
+  ctx.response.redirect('/secret.html')  
+});
+
+MFARouter.get('/OAuth/linkedin/login', BedrockLinkedin.sendRedirect);
+
+MFARouter.get('/OAuth/linkedin/token', BedrockLinkedin.getToken, (ctx: Context) => {
+  ctx.response.redirect('/secret.html')  
 });
 
 MFARouter.get('/secret.html', Bedrock.verifyAuth, async (ctx: Context) => {
@@ -124,3 +173,5 @@ MFARouter.get('/stylesheets/:sheet', async (ctx: Context) => {
   });
   return;
 });
+
+//deno run --allow-read --allow-env

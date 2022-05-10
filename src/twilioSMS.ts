@@ -38,17 +38,11 @@ export class TwilioSMS {
           'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8',
           Authorization: this.authorizationHeader,
         },
-        //content of the SMS message is passed within body of post request
-        //body must be sent in url-encoded form: ex. key1=value1&key2=value2
-        //payload object converted to url-encoded string using URLSearchParams object 
         body: new URLSearchParams(payload),
       }
     )
-    //console.log('this is data!: ', data);
     const response = await data.json();
     const { body } = response;
-    console.log('this is response!:', response);
-    
     //returning only the body of the response object 
     return body;
   }
@@ -64,13 +58,11 @@ export class TwilioSMS {
     const code = await generateTOTP(this.secret);
     const messageBody:string = code[1];
     const {From, To} = fromAndTo;
-
     const newPayload: SMSRequest = {
       From, 
       To,
       Body: messageBody
     }
-
     return this.postSMSRequest(newPayload);
   }
 }

@@ -1,7 +1,7 @@
-import { decode, Context} from "./deps.ts";
+import { decode64, Context, SMTPClient } from "./deps.ts";
 import { generateTOTP } from "./totp.ts";
-import { TwilioSMS} from "./twilioSMS.ts";
-import { LocalStrategyParams, Incoming } from "./types.ts"
+import { TwilioSMS } from "./twilioSMS.ts";
+import { LocalStrategyParams, Incoming, ClientOptions, SendConfig } from "./types.ts"
 
 /**
  * Class LocalStrategy has 2 REQUIRED properties: checkCreds and mfa_enabled
@@ -16,6 +16,9 @@ export class LocalStrategy {
   accountSID?: string;
   authToken?: string;
   getNumber?: (username: string) => Promise<string>;
+  clientOptions? : ClientOptions;
+  getEmail?: (username: string) => Promise<string>;
+  fromAddress?: string;
 
   constructor(stratParams: LocalStrategyParams) {
     this.checkCreds = stratParams.checkCreds;
@@ -45,7 +48,7 @@ export class LocalStrategy {
         if (authHeaders.startsWith('Basic ')) {
           authHeaders = authHeaders.slice(6);
         }
-        const auth = decode(authHeaders);
+        const auth = decode64(authHeaders);
         const decodedAuth = new TextDecoder().decode(auth!);
         credentials = decodedAuth.split(":");
       }
@@ -155,15 +158,41 @@ export class LocalStrategy {
       the 'From' phone number (developer's designated Twilio phone number) and 'To' phone number (client/user's phone number)
    */
   sendMFA = async (ctx: Context) => {
+    const secret = await this.getSecret!(await ctx.state.session.get('username'));
+
     if (this.mfa_type === "SMS") {
-      const sms = new TwilioSMS(this.accountSID!, await this.getSecret!(await ctx.state.session.get('username')), this.authToken!);
+      const sms = new TwilioSMS(this.accountSID!, secret, this.authToken!);
       const context: Incoming = {
         From: '+17164543649',
         To: await this.getNumber!(await ctx.state.session.get('username'))!,
       }
       await sms.sendSms(context);
+    } 
+    
+    else if (this.mfa_type === 'Email') {
+      // Generate TOTP code
+      const code = await generateTOTP(secret);
+
+      // Set up email client
+      const client = new SMTPClient(this.clientOptions!);
+
+      // Build email
+      const subjectText: string = 'Your MFA code is ' + code[1];
+      const contentText: string = subjectText;
+      const htmlText: string = '<p>Your MFA code is ' + code[1] + '.</p>';
+
+      const newEmail: SendConfig = {
+        from: this.fromAddress!, 
+        to: "bedrock.deno@gmail.com",
+        subject: subjectText,
+        content: contentText,
+        html: htmlText,
+      }
+
+      // Send email and close server connection
+      await client.send(newEmail);
+      await client.close();
     }
-    //Insert ELSE IF statement for when email is set up
   }
   /**
    * 
