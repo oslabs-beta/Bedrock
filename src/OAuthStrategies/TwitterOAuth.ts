@@ -1,20 +1,22 @@
 import { Context, helpers } from "./../deps.ts";
-import { LinkedinOAuthParams } from "./../types.ts";
+import { TwitterOauthParams } from "./../types.ts"
 
-export class LinkedinOAuth {
-  provider = "Linkedin";
-  client_id: string;
-  client_secret: string;
-  redirect_uri: string;
-  response_type = "code";
-  scope: string;
-  state?: string;
+export class TwitterOAuth {
+    provider = "Twitter";
+    client_id: string;
+    client_secret: string;
+    response_type = "code";
+    redirect_uri: string;
+    state?: string;
+    scope?: string;
+    code_challenge?: string;
+    code_challenge_ans?: string;
+    code_challenge_method = "S256";
 
-  constructor(stratParams: LinkedinOAuthParams) {
+  constructor(stratParams: TwitterOauthParams) {
     this.client_id = stratParams.client_id;
     this.client_secret = stratParams.client_secret;
     this.redirect_uri = stratParams.redirect_uri;
-    this.scope = stratParams.scope;
     Object.assign(this, stratParams)!;
   }
 
@@ -22,15 +24,36 @@ export class LinkedinOAuth {
    * Appends client info onto uri string and redirects to generated link.
    */
   sendRedirect = (ctx: Context): void => {
-    let uri = "https://www.linkedin.com/oauth/v2/authorization?";
+    let uri = "https://discord.com/api/oauth2/authorize";
+    if (this.scope !== undefined) {
+      uri += `scope=${this.scope}&`;
+    }
+
+    function randomGenerator (length: number): string {
+      let result = "";
+      const alphanum: string = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      for (let i = 0; i < length; i++) {
+        result += alphanum[Math.floor(Math.random() * alphanum.length)];
+      }
+      return result;
+    }
 
     if (this.state === undefined) {
-      this.state = "";
-      const alphanum: string =
-        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      for (let i = 0; i < 20; i++) {
-        this.state += alphanum[Math.floor(Math.random() * alphanum.length)];
+        this.state = randomGenerator(20);
+    }
+
+    function base64_urlencode(str: string): string {
+        return btoa(String.fromCharCode.apply(null, 
+          new Uint8Array(str)))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
       }
+
+    if (this.code_challenge === undefined) {
+      this.code_challenge_ans = randomGenerator(128);
+      this.code_challenge = base64_urlencode(this.code_challenge_ans)
+
     }
 
     for (let prop in this) {
@@ -38,8 +61,7 @@ export class LinkedinOAuth {
         uri += `${prop}=${this[prop]}&`;
       }
     }
-    uri = uri.slice(0, uri.length - 1);
-    console.log(uri);
+    uri = uri.slice(0, uri.length - 1); 
     ctx.response.redirect(uri);
     return;
   };
@@ -56,24 +78,23 @@ export class LinkedinOAuth {
       ctx.response.status = 401;
       ctx.response.body = {
         success: false,
-        message: "Unable to log in via Github",
+        message: "Unable to log in via Twitter",
       };
       throw new Error();
     }
 
     try {
-      const token = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
+      const token = await fetch("https://api.twitter.com/2/oauth2/token", {
         method: "POST",
         headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: JSON.stringify({
+        body: new URLSearchParams({
           client_id: this.client_id,
           client_secret: this.client_secret,
           code,
-          grant_type: 'authorization_code',
-          redirect_uri: this.redirect_uri,
+          grant_type: 'authorization-code',
+          redirect_uri: this.redirect_uri
         }),
       });
 

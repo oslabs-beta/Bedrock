@@ -1,5 +1,4 @@
 import { Context } from "./deps.ts";
-
 export type { SendConfig } from 'https://deno.land/x/denomailer@1.0.1/mod.ts';
 export type { RouterMiddleware } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 
@@ -84,13 +83,13 @@ export interface GoogleOAuthParams {
 }
 
 export interface DiscordOAuthParams {
-  provider: "Discord" | "LinkedIn";
+  provider: "Discord"; 
   client_id: string;
   client_secret: string;
   grant_type: "authorization_code";
-  code: string;
   redirect_uri: string;
   state?: string;
+  scope?: string;
 }
 
 export interface LinkedinOAuthParams {
@@ -107,7 +106,21 @@ export interface FacebookOAuthParams {
   provider: "Facebook";
   client_id: string;
   redirect_uri: string;
-  state: string;
+  client_secret: string;
+  state?: string;
   response_type?: "code";
   scope?: string;
+}
+
+export interface TwitterOauthParams {
+  provider: "Twitter";
+  client_id: string;
+  client_secret: string;
+  response_type: "code";
+  redirect_uri: string;
+  state?: string;
+  scope?: string;
+  code_challenge?: string;
+  code_challenge_ans?: string;
+  code_challenge_method: "S256";
 }

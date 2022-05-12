@@ -1,20 +1,20 @@
+// import { OAuthStrategyParams } from './bedrock.ts'
 import { Context, helpers } from "./../deps.ts";
-import { LinkedinOAuthParams } from "./../types.ts";
+import { DiscordOAuthParams } from "./../types.ts"
 
-export class LinkedinOAuth {
-  provider = "Linkedin";
+export class DiscordOAuth {
+  provider = "Discord"; 
   client_id: string;
   client_secret: string;
+  grant_type = "authorization_code";
   redirect_uri: string;
-  response_type = "code";
-  scope: string;
   state?: string;
+  scope?: string;
 
-  constructor(stratParams: LinkedinOAuthParams) {
+  constructor(stratParams: DiscordOAuthParams) {
     this.client_id = stratParams.client_id;
     this.client_secret = stratParams.client_secret;
     this.redirect_uri = stratParams.redirect_uri;
-    this.scope = stratParams.scope;
     Object.assign(this, stratParams)!;
   }
 
@@ -22,8 +22,10 @@ export class LinkedinOAuth {
    * Appends client info onto uri string and redirects to generated link.
    */
   sendRedirect = (ctx: Context): void => {
-    let uri = "https://www.linkedin.com/oauth/v2/authorization?";
-
+    let uri = "https://discord.com/api/oauth2/authorize";
+    if (this.scope !== undefined) {
+      uri += `scope=${this.scope}&`;
+    }
     if (this.state === undefined) {
       this.state = "";
       const alphanum: string =
@@ -38,8 +40,7 @@ export class LinkedinOAuth {
         uri += `${prop}=${this[prop]}&`;
       }
     }
-    uri = uri.slice(0, uri.length - 1);
-    console.log(uri);
+    uri = uri.slice(0, uri.length - 1); 
     ctx.response.redirect(uri);
     return;
   };
@@ -56,24 +57,23 @@ export class LinkedinOAuth {
       ctx.response.status = 401;
       ctx.response.body = {
         success: false,
-        message: "Unable to log in via Github",
+        message: "Unable to log in via Discord",
       };
       throw new Error();
     }
 
     try {
-      const token = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
+      const token = await fetch("https://discord.com/api/oauth2/token", {
         method: "POST",
         headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: JSON.stringify({
+        body: new URLSearchParams({
           client_id: this.client_id,
           client_secret: this.client_secret,
           code,
-          grant_type: 'authorization_code',
-          redirect_uri: this.redirect_uri,
+          grant_type: 'authorization-code',
+          redirect_uri: this.redirect_uri
         }),
       });
 
