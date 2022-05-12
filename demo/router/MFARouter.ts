@@ -1,7 +1,7 @@
 import { Router, Context, helpers } from "../../src/deps.ts";
 import dbController from '../controller/controller.ts';
 import { initLocal, initOAuth } from '../../src/bedrock.ts'
-import { LocalStrategyParams, GithubOAuthParams, GoogleOAuthParams, LinkedinOAuthParams, ClientOptions} from '../../src/types.ts'
+import { LocalStrategyParams, GithubOAuthParams, GoogleOAuthParams, LinkedinOAuthParams, DiscordOAuthParams, /*FacebookOAuthParams*/, ClientOptions} from '../../src/types.ts'
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
 
 export const MFARouter = new Router();
@@ -65,13 +65,39 @@ const LinkedinParams: LinkedinOAuthParams = {
   response_type: "code",
 }
 
+const DiscordParams: DiscordOAuthParams = {
+  provider: "Discord",
+  client_id: Deno.env.get('DISCORD_CLIENT_ID')!,
+  client_secret: Deno.env.get('DISCORD_CLIENT_SECRET')!,
+  grant_type: "authorization_code",
+  redirect_uri: 'http://localhost:8080/OAuth/discord/token',
+}
+
+// const FacebookParams: FacebookOAuthParams = {
+//   provider: "Facebook",
+//   client_id: Deno.env.get('FACEBOOK_CLIENT_ID')!,
+//   client_secret: Deno.env.get('FACEBOOK_CLIENT_SECRET')!,  
+//   redirect_uri: 'http://localhost:8080/OAuth/facebook/token',
+// }
+
+// const TwitterParams: TwitterOAuthParams = {
+//   provider: "Twitter",
+//   client_id: Deno.env.get('TWITTER_CLIENT_ID')!,
+//   client_secret: Deno.env.get('TWITTER_CLIENT_SECRET')!,
+//   grant_type: "authorization_code",
+//   redirect_uri: 'http://localhost:8080/OAuth/twitter/token',
+// }
+
 const Bedrock = initLocal(params);
 const BedrockGithub = initOAuth(GithubParams);
 const BedrockGoogle = initOAuth(GParams);
 const BedrockLinkedin = initOAuth(LinkedinParams);
-
+const BedrockDiscord = initOAuth(DiscordParams);
+// const BedrockFacebook = initOAuth(FacebookParams);
+// const BedrockTwitter = init0Auth(TwitterParams);
 
 MFARouter.get('/', async (ctx: Context) => {
+  console.log(ctx.request);
   await ctx.send({
     root: `${Deno.cwd()}/demo/client`,
     path: `index.html`,
@@ -102,22 +128,34 @@ MFARouter.post('/verifyMFA', Bedrock.checkMFA, (ctx: Context) => {
 })
 
 MFARouter.get('/OAuth/github/login', BedrockGithub.sendRedirect);
-
 MFARouter.get('/OAuth/github/token', BedrockGithub.getToken, (ctx: Context) => {
   ctx.response.redirect('/secret.html');
 });
 
 MFARouter.get('/OAuth/google/login', BedrockGoogle.sendRedirect);
-
 MFARouter.get('/OAuth/google/token', BedrockGoogle.getToken, (ctx: Context) => {
   ctx.response.redirect('/secret.html')  
 });
 
 MFARouter.get('/OAuth/linkedin/login', BedrockLinkedin.sendRedirect);
-
 MFARouter.get('/OAuth/linkedin/token', BedrockLinkedin.getToken, (ctx: Context) => {
   ctx.response.redirect('/secret.html')  
 });
+// 
+MFARouter.get('/OAuth/discord/login', BedrockDiscord.sendRedirect);
+MFARouter.get('/OAuth/discord/token', BedrockDiscord.getToken, (ctx: Context) => {
+  ctx.response.redirect('/secret.html')  
+});
+
+MFARouter.get('/OAuth/facebook/login', BedrockFacebook.sendRedirect);
+MFARouter.get('/OAuth/facebook/token', BedrockFacebook.getToken, (ctx: Context) => {
+  ctx.response.redirect('/secret.html')  
+});
+
+// MFARouter.get('/OAuth/twitter/login', BedrockDiscord.sendRedirect);
+// MFARouter.get('/OAuth/twitter/token', BedrockDiscord.getToken, (ctx: Context) => {
+//   ctx.response.redirect('/secret.html')  
+// });
 
 MFARouter.get('/secret.html', Bedrock.verifyAuth, async (ctx: Context) => {
   console.log('Secret hit');
