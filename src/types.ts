@@ -88,8 +88,8 @@ export interface DiscordOAuthParams {
   client_secret: string;
   grant_type: "authorization_code";
   redirect_uri: string;
+  scope: string;
   state?: string;
-  scope?: string;
 }
 
 export interface LinkedinOAuthParams {

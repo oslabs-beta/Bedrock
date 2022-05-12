@@ -8,13 +8,16 @@ export class DiscordOAuth {
   client_secret: string;
   grant_type = "authorization_code";
   redirect_uri: string;
-  state?: string;
+  response_type = 'code';
   scope?: string;
+  state?: string;
+  
 
   constructor(stratParams: DiscordOAuthParams) {
     this.client_id = stratParams.client_id;
     this.client_secret = stratParams.client_secret;
     this.redirect_uri = stratParams.redirect_uri;
+    this.scope = stratParams.scope;
     Object.assign(this, stratParams)!;
   }
 
@@ -22,9 +25,11 @@ export class DiscordOAuth {
    * Appends client info onto uri string and redirects to generated link.
    */
   sendRedirect = (ctx: Context): void => {
-    let uri = "https://discord.com/api/oauth2/authorize";
+    let uri = "https://discord.com/api/oauth2/authorize?";
     if (this.scope !== undefined) {
       uri += `scope=${this.scope}&`;
+    } else{
+      uri += `scope=identify`;
     }
     if (this.state === undefined) {
       this.state = "";

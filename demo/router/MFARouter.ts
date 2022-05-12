@@ -1,7 +1,7 @@
 import { Router, Context, helpers } from "../../src/deps.ts";
 import dbController from '../controller/controller.ts';
 import { initLocal, initOAuth } from '../../src/bedrock.ts'
-import { LocalStrategyParams, GithubOAuthParams, GoogleOAuthParams, LinkedinOAuthParams, DiscordOAuthParams, /*FacebookOAuthParams*/, ClientOptions} from '../../src/types.ts'
+import { LocalStrategyParams, GithubOAuthParams, GoogleOAuthParams, LinkedinOAuthParams, DiscordOAuthParams, FacebookOAuthParams, ClientOptions} from '../../src/types.ts'
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
 
 export const MFARouter = new Router();
@@ -71,14 +71,15 @@ const DiscordParams: DiscordOAuthParams = {
   client_secret: Deno.env.get('DISCORD_CLIENT_SECRET')!,
   grant_type: "authorization_code",
   redirect_uri: 'http://localhost:8080/OAuth/discord/token',
+  scope: 'identify',
 }
 
-// const FacebookParams: FacebookOAuthParams = {
-//   provider: "Facebook",
-//   client_id: Deno.env.get('FACEBOOK_CLIENT_ID')!,
-//   client_secret: Deno.env.get('FACEBOOK_CLIENT_SECRET')!,  
-//   redirect_uri: 'http://localhost:8080/OAuth/facebook/token',
-// }
+const FacebookParams: FacebookOAuthParams = {
+  provider: "Facebook",
+  client_id: Deno.env.get('FACEBOOK_CLIENT_ID')!,
+  client_secret: Deno.env.get('FACEBOOK_CLIENT_SECRET')!,  
+  redirect_uri: 'http://localhost:8080/OAuth/facebook/token',
+}
 
 // const TwitterParams: TwitterOAuthParams = {
 //   provider: "Twitter",
@@ -93,7 +94,7 @@ const BedrockGithub = initOAuth(GithubParams);
 const BedrockGoogle = initOAuth(GParams);
 const BedrockLinkedin = initOAuth(LinkedinParams);
 const BedrockDiscord = initOAuth(DiscordParams);
-// const BedrockFacebook = initOAuth(FacebookParams);
+const BedrockFacebook = initOAuth(FacebookParams);
 // const BedrockTwitter = init0Auth(TwitterParams);
 
 MFARouter.get('/', async (ctx: Context) => {
