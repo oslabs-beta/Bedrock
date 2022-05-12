@@ -40,7 +40,6 @@ export class LinkedinOAuth {
       }
     }
     uri = uri.slice(0, uri.length - 1);
-    console.log(uri);
     ctx.response.redirect(uri);
     return;
   };

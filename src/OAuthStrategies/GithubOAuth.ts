@@ -22,7 +22,7 @@ export class GithubOAuth {
   /**
    * Appends client info onto uri string and redirects to generated link.
    */
-  sendRedirect = (ctx: Context): void => {
+  sendRedirect = (ctx: Context): string => {
     let uri = "http://github.com/login/oauth/authorize?";
     if (this.scope !== undefined) {
       uri += `scope=${this.scope}&`;
@@ -41,13 +41,19 @@ export class GithubOAuth {
         uri += `${prop}=${this[prop]}&`;
       }
     }
+    uri = uri.slice(0, uri.length - 1); 
     ctx.response.redirect(uri);
-    return;
+    return uri;
   };
   /**
    * 
    */
   getToken = async (ctx: Context, next: () => Promise<unknown>) => {
+    const originalURI: string = ctx.request.url.search;
+    if (originalURI.includes('error')){
+      return new Error('Error in getToken: received an error from code request.');
+    }
+
     const params = helpers.getQuery(ctx, { mergeParams: true });    
     const { code, state } = params;    
 
@@ -59,7 +65,7 @@ export class GithubOAuth {
         success: false,
         message: "Unable to log in via Github",
       };
-      throw new Error();
+      return new Error('Unable to log in via Github');
     }
 
     try {
