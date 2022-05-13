@@ -1,5 +1,6 @@
-import { Context, helpers } from "./../deps.ts";
+import { Context, helpers, crypto, encode64url, decode64url } from "./../deps.ts";
 import { TwitterOauthParams } from "./../types.ts"
+
 
 export class TwitterOAuth {
     provider = "Twitter";
@@ -23,7 +24,7 @@ export class TwitterOAuth {
   /**
    * Appends client info onto uri string and redirects to generated link.
    */
-  sendRedirect = (ctx: Context): void => {
+  sendRedirect = async (ctx: Context): Promise<void> => {
     let uri = "https://discord.com/api/oauth2/authorize";
     if (this.scope !== undefined) {
       uri += `scope=${this.scope}&`;
@@ -42,26 +43,25 @@ export class TwitterOAuth {
         this.state = randomGenerator(20);
     }
 
-    function base64_urlencode(str: string): string {
-        return btoa(String.fromCharCode.apply(null, 
-          new Uint8Array(str)))
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=+$/, '');
-      }
+    // function base64_urlencode(str: string): string {
+    //   return btoa(String.fromCharCode.apply(null, new Uint8Array(str)))
+    //     .replace(/\+/g, '-')
+    //     .replace(/\//g, '_')
+    //     .replace(/=+$/, '');
+    // }
 
-    if (this.code_challenge === undefined) {
-      this.code_challenge_ans = randomGenerator(128);
-      this.code_challenge = base64_urlencode(this.code_challenge_ans)
 
-    }
+    this.code_challenge = randomGenerator(128);
+    const challengeArr = new TextEncoder().encode(this.code_challenge);
+    const encoded = encode64url(await crypto.subtle.digest("SHA-256", challengeArr));
 
-    for (let prop in this) {
+    for (const prop in this) {
       if (this[prop] !== undefined && prop !== "provider" && prop !== "client_secret" && typeof this[prop] === 'string') {
         uri += `${prop}=${this[prop]}&`;
       }
     }
     uri = uri.slice(0, uri.length - 1); 
+    
     ctx.response.redirect(uri);
     return;
   };
@@ -119,12 +119,10 @@ export class TwitterOAuth {
       await ctx.state.session.has("isLoggedIn") &&
       await ctx.state.session.get("isLoggedIn")
     ) {
-      console.log("local auth worked");
       if (
         await ctx.state.session.has("mfa_success") &&
         await ctx.state.session.get("mfa_success")
       ) {
-        console.log("mfa worked");
         return next();
       }
     }

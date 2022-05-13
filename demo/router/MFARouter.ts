@@ -98,7 +98,6 @@ const BedrockFacebook = initOAuth(FacebookParams);
 // const BedrockTwitter = init0Auth(TwitterParams);
 
 MFARouter.get('/', async (ctx: Context) => {
-  console.log(ctx.request);
   await ctx.send({
     root: `${Deno.cwd()}/demo/client`,
     path: `index.html`,
@@ -159,7 +158,6 @@ MFARouter.get('/OAuth/facebook/token', BedrockFacebook.getToken, (ctx: Context) 
 // });
 
 MFARouter.get('/secret.html', Bedrock.verifyAuth, async (ctx: Context) => {
-  console.log('Secret hit');
   await ctx.send({
     root: `${Deno.cwd()}/demo/client`,
     path: `secret.html`,
@@ -173,7 +171,6 @@ MFARouter.get('/logout', Bedrock.signOut, (ctx: Context) => {
 });
 
 MFARouter.get('/:value', async (ctx: Context) => {
-  console.log('hit!');
   const path = helpers.getQuery(ctx, {mergeParams: true}).value;
   if (path === 'favicon.ico') {
     ctx.response.status = 200;
@@ -213,4 +210,4 @@ MFARouter.get('/stylesheets/:sheet', async (ctx: Context) => {
   return;
 });
 
-//deno run --allow-read --allow-env
+//deno run --allow-read --allow-env --allow-net
