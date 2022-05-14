@@ -5,65 +5,49 @@ import {
   helpers,
   encode64,
 } from "./../deps.ts";
-import { TwitterOAuthParams } from "./../types.ts";
+import { OAuthParams } from "./../types.ts";
+import { OAuth } from './OAuth.ts';
 
-export class TwitterOAuth {
-  provider = "Twitter";
-  client_id: string;
-  client_secret: string;
-  response_type = "code";
-  redirect_uri: string;
-  state?: string;
-  scope = "tweet.read users.read follows.read follows.write";
-  code_challenge: string;
-  code_challenge_method = "S256";
+  /**
+   * Appends necessary client info onto uri string and redirects to generated link.
+   * @param ctx 
+   * @returns 
+   **/
 
-  constructor(stratParams: TwitterOAuthParams) {
-    this.client_id = stratParams.client_id;
-    this.client_secret = stratParams.client_secret;
-    this.redirect_uri = stratParams.redirect_uri;
-    this.code_challenge = this.randomGenerator(128);
+export class TwitterOAuth extends OAuth{
+  constructor(stratParams: OAuthParams) {
+    super(stratParams);
     Object.assign(this, stratParams)!;
   }
-  randomGenerator = (length: number): string => {
-    let result = "";
-    const alphanum = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    for (let i = 0; i < length; i++) {
-      result += alphanum[Math.floor(Math.random() * alphanum.length)];
-    }
-    return result;
-  }
+  
   /**
-   * Appends client info onto uri string and redirects to generated link.
+   * 
+   * @param ctx 
+   * @returns 
    */
   sendRedirect = async (ctx: Context): Promise<void> => {
-    let uri = "https://twitter.com/i/oauth2/authorize?";
+    let uri = this.uriBuilder();
 
-    if (this.state === undefined) {
-      this.state = this.randomGenerator(20);
-    }
+    ctx.state.session.set('state', this.randomStringGenerator(20));
+    ctx.state.session.set('code_challenge', this.randomStringGenerator(128))
 
-    const challengeArr = new TextEncoder().encode(this.code_challenge);
+    const challengeArr = new TextEncoder().encode(await ctx.state.session.get('code_challenge'));
     const encoded = encode64url(
       await crypto.subtle.digest("SHA-256", challengeArr),
     );
-
-    for (const prop in this) {
-      if (
-        this[prop] !== undefined && prop !== "code_challenge" && prop !== "provider" &&
-        prop !== "client_secret" && typeof this[prop] === "string"
-      ) {
-        uri += `${prop}=${this[prop]}&`;
-      }
-    }
     
-    uri += `code_challenge=${encoded}`
-    // ctx.response.headers.set('Content-type', 'application/x-www-form-urlencoded');
-    // ctx.response.headers.set('Charset', 'UTF-8');
-    ctx.response.redirect(encodeURI(uri));
+    uri += `&state=${await ctx.state.session.get('state')}&code_challenge=${encoded}&code_challenge_method=S256`;
+
+    ctx.response.redirect(uri);
     return;
   };
-  /** */
+  
+  /**
+   * 
+   * @param ctx 
+   * @param next 
+   * @returns 
+   */
   getToken = async (ctx: Context, next: () => Promise<unknown>) => {
     try {
       const params = helpers.getQuery(ctx, { mergeParams: true });
@@ -71,14 +55,13 @@ export class TwitterOAuth {
 
       if (params.error) throw new Error('User did not authorize app');
 
-      if (state !== this.state) {
-        ctx.state.session.set("isLoggedIn", false);
+      if (state !== await ctx.state.session.get('state')) {
         throw new Error('State validation on incoming response failed');
       }
+
       const authHeader = encode64(`${this.client_id}:${this.client_secret}`);
-      //console.log('this is the authheader: ', authHeader);
       
-      const token = await fetch(
+      const response = await fetch(
         "https://api.twitter.com/2/oauth2/token",
         {
           method: "POST",
@@ -89,7 +72,7 @@ export class TwitterOAuth {
           },
           body: new URLSearchParams({
             client_id: this.client_id,
-            code_verifier: this.code_challenge,
+            code_verifier: await ctx.state.session.get('code_challenge'),
             code,
             grant_type: "authorization_code",
             redirect_uri: this.redirect_uri
@@ -97,49 +80,25 @@ export class TwitterOAuth {
         },
       );
 
-      if (token.status !== 200) {
+      const token = await response.json();
+      if (response.status !== 200) {
+        console.log('Failed Response Body: ', token);
         throw new Error('Unsuccessful authentication response')
       }
 
-      console.log(token);
-      //console.log('twitter token is: ', token);
-      const body = await token.json();
-      //console.log('twitter body is: ', body);
-      ctx.state.session.set("accessToken", body.access_token);
+      ctx.state.session.set("accessToken", token.access_token);
       ctx.state.session.set("isLoggedIn", true);
-      ctx.state.session.set("mfa_success", true);
-      next();
+
+      ctx.state.OAuthVerified = true;
+      ctx.state.token = token;
     } 
     catch(err){
       ctx.state.session.set("isLoggedIn", false);
-      ctx.response.status = 401;
-      ctx.response.body = {
-        success: false,
-        message: "Unable to log in with Twitter",
-      };
+      ctx.state.OAuthVerified = false;
+
       console.log('There was a problem logging in with Twitter: ', err);
-      return;
     }
+    return next();
   };
 
-  verifyAuth = async (ctx: Context, next: () => Promise<unknown>) => {
-    if (
-      await ctx.state.session.has("isLoggedIn") &&
-      await ctx.state.session.get("isLoggedIn")
-    ) {
-      if (
-        await ctx.state.session.has("mfa_success") &&
-        await ctx.state.session.get("mfa_success")
-      ) {
-        return next();
-      }
-    }
-    ctx.response.redirect("/blocked.html");
-    return;
-  };
-
-  signOut = async (ctx: Context, next: () => Promise<unknown>) => {
-    await ctx.state.session.deleteSession(ctx);
-    next();
-  };
 }

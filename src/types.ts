@@ -2,16 +2,21 @@ import { Context } from "./deps.ts";
 export type { SendConfig } from "https://deno.land/x/denomailer@1.0.1/mod.ts";
 export type { RouterMiddleware } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 
-// Local Authentication Types
+/**
+ * Defined below are the types to structure arguments across various classes
+ * and methods in the Bedrock library
+ */
+
+// Local Authentication configuration object
 export type LocalStrategyParams = {
+  provider: "Local";
   checkCreds: (username: string, password: string) => Promise<boolean>;
-  mfa_enabled: true;
   mfa_type: "Token";
   readCreds?: (ctx: Context) => Promise<string[]>;
   getSecret: (username: string) => Promise<string>;
 } | {
+  provider: "Local";
   checkCreds: (username: string, password: string) => Promise<boolean>;
-  mfa_enabled: true;
   mfa_type: "SMS";
   readCreds?: (ctx: Context) => Promise<string[]>;
   getSecret: (username: string) => Promise<string>;
@@ -19,12 +24,13 @@ export type LocalStrategyParams = {
   accountSID: string;
   authToken: string;
 } | {
+  provider: "Local";
   checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_enabled: false;
   readCreds?: (ctx: Context) => Promise<string[]>;
 } | {
+  provider: "Local";
   checkCreds: (username: string, password: string) => Promise<boolean>;
-  mfa_enabled: true;
   readCreds?: (ctx: Context) => Promise<string[]>;
   getSecret: (username: string) => Promise<string>;
   mfa_type: "Email";
@@ -33,20 +39,23 @@ export type LocalStrategyParams = {
   fromAddress: string;
 };
 
-export interface SMSRequest {
-  [index: string]: string;
+// SMS configuration object
+export type SMSRequest = {
+  
+  
   From: string; //the twilio phone number to use to send an SMS
   To: string; //phone number to receive SMS
   Body: string; //SMS content
 }
 
-export interface Incoming {
+// SMS to/from object
+export type Incoming = {
   From: string;
   To: string;
 }
 
-// Email Client Settings
-export interface ClientOptions {
+// Email client configuration object
+export type ClientOptions = {
   connection: {
     hostname: string;
     port?: number;
@@ -58,65 +67,19 @@ export interface ClientOptions {
   };
 }
 
-// OAuth Types
-export interface GithubOAuthParams {
-  provider: "Github";
+// OAuth Type configuration object
+export type OAuthParams = {
+  provider: 'Github' | 'Facebook' | 'Twitter' | 'Linkedin' | 'Discord';
   client_id: string;
   client_secret: string;
   redirect_uri: string;
-  login?: string;
-  scope?: string;
-  allow_signup?: string;
-  state?: string;
-}
-
-export interface GoogleOAuthParams {
-  provider: "Google";
-  client_id: string;
-  client_secret: string;
   scope: string;
+} | {
+  provider: 'Google';
+  client_id: string;
+  client_secret: string;
   redirect_uri: string;
-  response_type: "code";
-  access_type?: "online" | "offline";
-  state?: string;
+  scope: string;
+  access_type?: "online" | "offline";  
   prompt?: "none" | "consent" | "select_account";
-}
-
-export interface DiscordOAuthParams {
-  provider: "Discord";
-  client_id: string;
-  client_secret: string;
-  grant_type: "authorization_code";
-  redirect_uri: string;
-  scope: string;
-  state?: string;
-}
-
-export interface LinkedinOAuthParams {
-  provider: "Linkedin";
-  client_id: string;
-  client_secret: string;
-  scope: string;
-  redirect_uri: string;
-  response_type: "code";
-  state?: string;
-}
-
-export interface FacebookOAuthParams {
-  provider: "Facebook";
-  client_id: string;
-  redirect_uri: string;
-  client_secret: string;
-  state?: string;
-  response_type?: "code";
-  scope?: string;
-}
-
-export interface TwitterOAuthParams {
-  provider: "Twitter";
-  client_id: string;
-  client_secret: string;
-  redirect_uri: string;
-  state?: string;
-  scope?: string;
 }

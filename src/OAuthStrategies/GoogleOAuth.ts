@@ -1,69 +1,56 @@
 import { Context, helpers } from "./../deps.ts";
-import { GoogleOAuthParams } from "./../types.ts";
+import { OAuthParams } from "./../types.ts";
+import { OAuth } from './OAuth.ts'
 
-export class GoogleOAuth {
-  provider = "Google";
-  client_id: string;
-  client_secret: string;
-  scope: string;
-  redirect_uri: string;
-  response_type = "code";
-  access_type?: "online" | "offline";
-  state?: string;
-  prompt?: "none" | "consent" | "select_account";
+export class GoogleOAuth extends OAuth{
+  protected readonly access_type?: 'online' | 'offline';
+  protected readonly prompt?: 'none' | 'consent' | 'select_account';
 
-  constructor(stratParams: GoogleOAuthParams) {
-    this.client_id = stratParams.client_id;
-    this.client_secret = stratParams.client_secret;
-    this.scope = stratParams.scope;
-    this.redirect_uri = stratParams.redirect_uri;
+  constructor(stratParams: OAuthParams) {
+    super(stratParams);
     Object.assign(this, stratParams)!;
   }
 
   /**
-   * Appends client info onto uri string and redirects to generated link.
-   */
-  sendRedirect = (ctx: Context): void => {
-    let uri = "http://accounts.google.com/o/oauth2/v2/auth?";
-    if (this.state === undefined) {
-      this.state = "";
-      const alphanum = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      for (let i = 0; i < 20; i++) {
-        this.state += alphanum[Math.floor(Math.random() * alphanum.length)];
-      }
+   * Appends necessary client info onto uri string and redirects to generated link.
+   * @param ctx 
+   * @returns 
+   **/
+  sendRedirect = async (ctx: Context): Promise<void> => {
+    let uri = this.uriBuilder();
+    ctx.state.session.set('state', this.randomStringGenerator(20));
+
+    uri += `&state=${await ctx.state.session.get('state')}`;
+
+    if(this.prompt !== undefined){
+      uri += `&prompt=${this.prompt}`;
     }
-    // Adding defined props to uri and including only props that are strings (exludes functions)
-    for (const prop in this) {
-      if (this[prop] !== undefined && prop !== "provider" && prop !== "client_secret" && typeof this[prop] === 'string') {
-        uri += `${prop}=${this[prop]}&`;
-      }
+    if(this.access_type !== undefined){
+      uri += `&access_type=${this.access_type}`;
     }
-    // Removing trailing "&" from uri variable
-    uri = uri.slice(0, uri.length - 1);    
-    // console.log(uri);
+    
     ctx.response.redirect(uri);
     return;
   }
 
   /**
-   * After user signs in with their credentials on OAuth providers page a response 
-   * with the code and current state are sent back to client
-   * 
-   */
+   * Functionality to generate post request to Discord server to obtain access token
+   * @param ctx 
+   * @param next 
+   * @returns 
+   **/
   getToken = async ( ctx: Context, next: () => Promise<unknown>) => {
     try {
-    
       const params = helpers.getQuery(ctx, { mergeParams: true });
       const { code, state } = params;
 
       if (params.error) throw new Error('User did not authorize app');
 
-      if (state !== this.state) {
-        ctx.state.session.set("isLoggedIn", false);
+      if (state !== await ctx.state.session.get('state')) {
         throw new Error('State validation on incoming response failed');
       }
 
-      const token = await fetch("https://oauth2.googleapis.com/token", {
+      const response = await fetch('https://oauth2.googleapis.com/token', {
         method: "POST",
         headers: {
           "Accept": "application/json",
@@ -77,52 +64,34 @@ export class GoogleOAuth {
           redirect_uri: this.redirect_uri,
         }),
       });
-      
-      if (token.status !== 200) {
+
+      const token = await response.json();
+
+      if (response.status !== 200) {
+        console.log('Failed Response Body: ', token);
         throw new Error('Unsuccessful authentication response');
       }
 
-      console.log(token);
+      // Bedrock session management variable assignment
+      ctx.state.session.set('accessToken', token.access_token);
+      ctx.state.session.set('isLoggedIn', true);
       
-      const body = await token.json();
-      ctx.state.session.set("accessToken", body.access_token);
-      ctx.state.session.set("isLoggedIn", true);
-      ctx.state.session.set("mfa_success", true);
-      next();
+      /**
+       * State properties that expire at end of response cycle
+       * Meant for developer to utilize in case of external session management
+       * Token passed to expose access/refresh token to developer
+       **/
+
+      ctx.state.OAuthVerified = true;
+      ctx.state.token = token;
     } 
     catch(err) {
       ctx.state.session.set("isLoggedIn", false);
-      ctx.response.status = 401;
-      ctx.response.body = {
-        success: false,
-        message: "Unable to log in with Google.",
-      };
-      console.log('There was a problem logging in with Google: ', err)
-      return;
-    }
-  }
+      ctx.state.OAuthVerified = false;
 
-  /**
-   * 
-   */
-  verifyAuth = async ( ctx: Context, next: () => Promise<unknown>) => {
-    if (
-      await ctx.state.session.has("isLoggedIn") &&
-      await ctx.state.session.get("isLoggedIn")
-    ) {
-      if (
-        await ctx.state.session.has("mfa_success") &&
-        await ctx.state.session.get("mfa_success")
-      ) {
-        return next();
-      }
+      console.log('There was a problem logging in with Google: ', err);
     }
-    ctx.response.redirect("/blocked.html");
-    return;
-  }
 
-  signOut = async (ctx: Context, next: () => Promise<unknown>) => {
-    await ctx.state.session.deleteSession(ctx);
-    next();
+    return next();
   }
 }

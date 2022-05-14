@@ -43,7 +43,7 @@ export class TwilioSMS {
     )
     const response = await data.json();
     const { body } = response;
-    //returning only the body of the response object 
+    //returning only the body of the response object, which is the code that was sent to the end-user
     return body;
   }
   /**

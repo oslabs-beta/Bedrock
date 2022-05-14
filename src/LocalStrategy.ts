@@ -9,7 +9,6 @@ import { LocalStrategyParams, Incoming, ClientOptions, SendConfig } from "./type
  */
 export class LocalStrategy {
   checkCreds: (username: string, password: string) => Promise<boolean>;
-  mfa_enabled: boolean;
   getSecret?: (username: string) => Promise<string>;
   readCreds?: (ctx: Context) => Promise<string[]>;
   mfa_type?: string;
@@ -22,7 +21,6 @@ export class LocalStrategy {
 
   constructor(stratParams: LocalStrategyParams) {
     this.checkCreds = stratParams.checkCreds;
-    this.mfa_enabled = stratParams.mfa_enabled;
 
     Object.assign(this, stratParams);
   }
@@ -64,10 +62,10 @@ export class LocalStrategy {
       await ctx.state.session.set('isLoggedIn', true);
       ctx.state.localVerified = true;
       ctx.state.mfaRequired = false;
-      if (this.mfa_enabled === true) {
-        ctx.state.mfaRequired = true;
-        this.sendMFA(ctx);
-      }
+      // if (this.mfa_enabled === true) {
+      //   ctx.state.mfaRequired = true;
+      //   this.sendMFA(ctx);
+      // }
       
     } else {
       await ctx.state.session.set('isLoggedIn', false);
@@ -91,26 +89,7 @@ export class LocalStrategy {
    *  Otherwise, if mfa_enabled is false, will also allow progression since mfa_success check is not warranted
    * If isLoggedIn is false, will return message stating client is "Not currently signed in"
    */
-  verifyAuth = async (ctx: Context, next: () => Promise<unknown>) => {
-    // console.log('route hit - details below');
-    // console.log('isLoggedIn:', await ctx.state.session.get('isLoggedIn'));
-    // console.log('MFA Enabled:', this.mfa_enabled);
-    // console.log('MFA success', await ctx.state.session.get('mfa_success'));
-
-    if (await ctx.state.session.has('isLoggedIn') && await ctx.state.session.get('isLoggedIn')) {
-      if (!this.mfa_enabled || (this.mfa_enabled && await ctx.state.session.has('mfa_success') && await ctx.state.session.get('mfa_success'))) {
-        return next();
-      }
-    }
-    //do we need to let the developer provide a page to redirect to?
-    ctx.response.redirect('/blocked.html');
-    // ctx.response.status = 401;
-    // ctx.response.body = {
-    //   success: false,
-    //   message: "Not currently signed in"
-    // };
-    return;
-  }
+  
   /**
    * @param context object
    * @param next function
@@ -195,15 +174,5 @@ export class LocalStrategy {
       await client.send(newEmail);
       await client.close();
     }
-  }
-  /**
-   * 
-   * @param context object
-   * @param next function
-   * When invoked, will delete the current session from the client 
-   */
-  signOut = async (ctx: Context, next: () => Promise<unknown>) => {
-    await ctx.state.session.deleteSession(ctx);
-    next();
   }
 }
