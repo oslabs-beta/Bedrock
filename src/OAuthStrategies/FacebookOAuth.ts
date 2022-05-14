@@ -28,14 +28,13 @@ export class FacebookOAuth {
     }
     if (this.state === undefined) {
       this.state = "";
-      const alphanum: string =
-        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const alphanum = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
       for (let i = 0; i < 20; i++) {
         this.state += alphanum[Math.floor(Math.random() * alphanum.length)];
       }
     }
 
-    for (let prop in this) {
+    for (const prop in this) {
       if (this[prop] !== undefined && prop !== "provider" && prop !== "client_secret" && typeof this[prop] === 'string') {
         uri += `${prop}=${this[prop]}&`;
       }
@@ -77,7 +76,7 @@ export class FacebookOAuth {
       if (token.status !== 200) {
         throw new Error(`Unsuccessful authentication response`)
       }
-      
+
       const body = await token.json();
       ctx.state.session.set("accessToken", body.access_token);
       ctx.state.session.set("isLoggedIn", true);

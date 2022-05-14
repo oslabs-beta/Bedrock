@@ -40,7 +40,7 @@ export class DiscordOAuth {
       }
     }
 
-    for (let prop in this) {
+    for (const prop in this) {
       if (this[prop] !== undefined && prop !== "provider" && prop !== "client_secret" && typeof this[prop] === 'string') {
         uri += `${prop}=${this[prop]}&`;
       }
