@@ -134,7 +134,7 @@ export async function generateTOTP(secret:string): Promise<string[]> {
     return output;
   }
 
-  // Defining array to hold TOTP token 1 step prior, current, and 1 step ahead, then
+  // Defining array to hold TOTP [token 1 step prior, current, and 1 step ahead], then
   // generating tokens
   const result = [];
 

@@ -100,6 +100,8 @@ export class TwitterOAuth {
       if (token.status !== 200) {
         throw new Error('Unsuccessful authentication response')
       }
+
+      console.log(token);
       //console.log('twitter token is: ', token);
       const body = await token.json();
       //console.log('twitter body is: ', body);

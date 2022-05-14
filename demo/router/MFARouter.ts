@@ -29,7 +29,7 @@ const clientOptions: ClientOptions = {
 const params: LocalStrategyParams = {
   mfa_enabled: true,
   checkCreds: dbController.checkCreds,
-  mfa_type: "Email",
+  mfa_type: "SMS",
   getSecret: dbController.getSecret,
   readCreds: async (ctx: Context): Promise<string[]> => {
     const body = await ctx.request.body();
@@ -37,12 +37,12 @@ const params: LocalStrategyParams = {
     const { username, password } = bodyValue;
     return [username, password];
   },
-  getEmail: dbController.getEmail,
-  clientOptions: clientOptions,
-  fromAddress: Deno.env.get("EMAIL_FROM")!,
-  // getNumber: dbController.getNumber,
-  // accountSID: Deno.env.get('TWILIO_ACCOUNT_SID')!,
-  // authToken: Deno.env.get('TWILIO_AUTH_TOKEN')!,
+  // getEmail: dbController.getEmail,
+  // clientOptions: clientOptions,
+  // fromAddress: Deno.env.get("EMAIL_FROM")!,
+  getNumber: dbController.getNumber,
+  accountSID: Deno.env.get('TWILIO_ACCOUNT_SID')!,
+  authToken: Deno.env.get('TWILIO_AUTH_TOKEN')!,
 };
 
 const GithubParams: GithubOAuthParams = {
@@ -116,6 +116,7 @@ MFARouter.post("/login", Bedrock.localLogin, (ctx: Context) => {
   if (ctx.state.localVerified) {
     ctx.response.body = {
       successful: true,
+      mfa_required: ctx.state.mfaRequired,
     };
     ctx.response.status = 200;
   } else {

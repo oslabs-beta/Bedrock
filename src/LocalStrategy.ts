@@ -8,10 +8,10 @@ import { LocalStrategyParams, Incoming, ClientOptions, SendConfig } from "./type
  * All other properties are optional, and will be subjected to type LocalStrategyParams
  */
 export class LocalStrategy {
-  checkCreds: ((username: string, password: string) => Promise<boolean>);
+  checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_enabled: boolean;
   getSecret?: (username: string) => Promise<string>;
-  readCreds?: ((ctx: Context) => Promise<string[]>);
+  readCreds?: (ctx: Context) => Promise<string[]>;
   mfa_type?: string;
   accountSID?: string;
   authToken?: string;
@@ -63,7 +63,12 @@ export class LocalStrategy {
     if (await this.checkCreds(username, password)) {
       await ctx.state.session.set('isLoggedIn', true);
       ctx.state.localVerified = true;
-      this.sendMFA(ctx);
+      ctx.state.mfaRequired = false;
+      if (this.mfa_enabled === true) {
+        ctx.state.mfaRequired = true;
+        this.sendMFA(ctx);
+      }
+      
     } else {
       await ctx.state.session.set('isLoggedIn', false);
       ctx.state.localVerified = false;
@@ -124,8 +129,8 @@ export class LocalStrategy {
     const mfaSecret = await this.getSecret!(await ctx.state.session.get('username'));
     const currentTOTP = await generateTOTP(mfaSecret);
 
-    console.log(currentTOTP);
-    console.log(bodyValue.code);
+    console.log('current array of TOTPs:', currentTOTP);
+    console.log('current inputted code:', bodyValue.code);
 
     const verified = currentTOTP.some((totp) => {
       return totp === bodyValue.code;

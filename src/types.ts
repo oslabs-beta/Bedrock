@@ -21,7 +21,7 @@ export type LocalStrategyParams = {
 } | {
   checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_enabled: false;
-  readCreds?: (ctx: Context) => string[];
+  readCreds?: (ctx: Context) => Promise<string[]>;
 } | {
   checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_enabled: true;

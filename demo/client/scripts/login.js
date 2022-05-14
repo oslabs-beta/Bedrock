@@ -42,21 +42,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }).then((body) => body.json()).then((body) => {
       console.log(body);
       if (body.successful) {
-        const rootDiv = document.getElementById('login-fields');
-        const mfaButton = document.createElement('button');
-        mfaButton.setAttribute('type', 'button');
-        mfaButton.addEventListener('click', checkMFA);
-        mfaButton.innerText = 'Submit 2FA code';
+        if (!body.mfa_required) window.location.replace('/secret.html');
+        else {
+          const rootDiv = document.getElementById('login-fields');
+          const mfaButton = document.createElement('button');
+          mfaButton.setAttribute('type', 'button');
+          mfaButton.addEventListener('click', checkMFA);
+          mfaButton.innerText = 'Submit 2FA code';
 
-        const codeEntry = document.createElement('input');
-        codeEntry.setAttribute('type', 'text');
-        codeEntry.setAttribute('id', 'code-entry');
-        codeEntry.setAttribute('placeholder', '------');
-        codeEntry.style.cssText += 'text-align:center';
-        document.getElementById('github').innerHTML = '';
-        rootDiv.innerHTML = '';
-        rootDiv.appendChild(codeEntry);
-        rootDiv.appendChild(mfaButton);
+          const codeEntry = document.createElement('input');
+          codeEntry.setAttribute('type', 'text');
+          codeEntry.setAttribute('id', 'code-entry');
+          codeEntry.setAttribute('placeholder', '------');
+          codeEntry.style.cssText += 'text-align:center';
+          document.getElementById('github').innerHTML = '';
+          rootDiv.innerHTML = '';
+          rootDiv.appendChild(codeEntry);
+          rootDiv.appendChild(mfaButton);
+        }
       } else {
         document.getElementById('Username').value = '';
         document.getElementById('Password').value = '';

@@ -73,6 +73,8 @@ export class LinkedinOAuth {
         throw new Error('Unsuccessful authentication response')
       }
 
+      console.log(token);
+      
       const body = await token.json();
       ctx.state.session.set("accessToken", body.access_token);
       ctx.state.session.set("isLoggedIn", true);
