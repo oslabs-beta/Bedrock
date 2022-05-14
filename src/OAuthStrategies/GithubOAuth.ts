@@ -49,10 +49,6 @@ export class GithubOAuth {
    * 
    */
   getToken = async (ctx: Context, next: () => Promise<unknown>) => {
-    const originalURI: string = ctx.request.url.search;
-    if (originalURI.includes('error')){
-      return new Error('Error in getToken: received an error from code request.');
-    }
 
     const params = helpers.getQuery(ctx, { mergeParams: true });    
     const { code, state } = params;    
@@ -82,12 +78,20 @@ export class GithubOAuth {
         }),
       });
 
-      const { access_token } = await token.json();
-      ctx.state.session.set("accessToken", access_token);
+      const body = await token.json();
+
+      if (token.status !== 200) {
+        console.log('Unsuccessful authentication, logging response');
+        console.log(body);
+        throw new Error(`Unsuccessful authentication response`)
+      }
+     
+      ctx.state.session.set("accessToken", body.access_token);
       ctx.state.session.set("isLoggedIn", true);
       ctx.state.session.set("mfa_success", true);
       next();
-    } catch (err) {
+    } 
+    catch(err) {
       ctx.state.session.set("isLoggedIn", false);
       ctx.response.status = 401;
       ctx.response.body = {
@@ -103,12 +107,10 @@ export class GithubOAuth {
       await ctx.state.session.has("isLoggedIn") &&
       await ctx.state.session.get("isLoggedIn")
     ) {
-      console.log("local auth worked");
       if (
         await ctx.state.session.has("mfa_success") &&
         await ctx.state.session.get("mfa_success")
       ) {
-        console.log("mfa worked");
         return next();
       }
     }

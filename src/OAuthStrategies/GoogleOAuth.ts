@@ -52,21 +52,18 @@ export class GoogleOAuth {
    * 
    */
   getToken = async ( ctx: Context, next: () => Promise<unknown>) => {
-    const params = helpers.getQuery(ctx, { mergeParams: true });
-    const { code, state } = params;
-
-    if (state !== this.state) {
-      console.log("State validation on incoming response failed");
-      ctx.state.session.set("isLoggedIn", false);
-      ctx.response.status = 401;
-      ctx.response.body = {
-        success: false,
-        message: "Unable to log in via Google",
-      };
-      throw new Error();
-    }
-
     try {
+    
+      const params = helpers.getQuery(ctx, { mergeParams: true });
+      const { code, state } = params;
+
+      if (params.error) throw new Error('User did not authorize app');
+
+      if (state !== this.state) {
+        ctx.state.session.set("isLoggedIn", false);
+        throw new Error('State validation on incoming response failed');
+      }
+
       const token = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
         headers: {
@@ -81,19 +78,26 @@ export class GoogleOAuth {
           redirect_uri: this.redirect_uri,
         }),
       });
-
-      const { access_token } = await token.json();
-      ctx.state.session.set("accessToken", access_token);
+      
+      if (token.status !== 200) {
+        // console.log('Unsuccessful authentication, logging response');
+        // console.log(body);
+        throw new Error('Unsuccessful authentication response');
+      }
+      const body = await token.json();
+      ctx.state.session.set("accessToken", body.access_token);
       ctx.state.session.set("isLoggedIn", true);
       ctx.state.session.set("mfa_success", true);
       next();
-    } catch (err) {
+    } 
+    catch(err) {
       ctx.state.session.set("isLoggedIn", false);
       ctx.response.status = 401;
       ctx.response.body = {
         success: false,
-        message: "Unable to retrieve token",
+        message: "Unable to log in with Google.",
       };
+      console.log('There was a problem logging in with Google: ', err)
       return;
     }
   }
@@ -106,12 +110,10 @@ export class GoogleOAuth {
       await ctx.state.session.has("isLoggedIn") &&
       await ctx.state.session.get("isLoggedIn")
     ) {
-      console.log("local auth worked");
       if (
         await ctx.state.session.has("mfa_success") &&
         await ctx.state.session.get("mfa_success")
       ) {
-        console.log("mfa worked");
         return next();
       }
     }

@@ -53,47 +53,52 @@ export class DiscordOAuth {
    * 
    */
   getToken = async (ctx: Context, next: () => Promise<unknown>) => {
-    const params = helpers.getQuery(ctx, { mergeParams: true });    
-    const { code, state } = params;    
-
-    if (state !== this.state) {
-      console.log("State validation on incoming response failed");
-      ctx.state.session.set("isLoggedIn", false);
-      ctx.response.status = 401;
-      ctx.response.body = {
-        success: false,
-        message: "Unable to log in via Discord",
-      };
-      throw new Error();
-    }
-
     try {
+      const params = helpers.getQuery(ctx, { mergeParams: true });    
+      const { code, state } = params;    
+
+      if (params.error) throw new Error('User did not authorize app');
+
+      if (state !== this.state) {
+        ctx.state.session.set("isLoggedIn", false);
+        throw new Error('State validation on incoming response failed');
+      }
+
       const token = await fetch("https://discord.com/api/oauth2/token", {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         },
         body: new URLSearchParams({
           client_id: this.client_id,
           client_secret: this.client_secret,
           code,
-          grant_type: 'authorization-code',
+          grant_type: 'authorization_code',
           redirect_uri: this.redirect_uri
         }),
       });
+      
+      if (token.status !== 200) {
+        // console.log('Unsuccessful authentication, logging response');
+        // console.log(body);
+        throw new Error('Unsuccessful authentication response')
+      }
 
-      const { access_token } = await token.json();
-      ctx.state.session.set("accessToken", access_token);
+      const body = await token.json();
+
+      ctx.state.session.set("accessToken", body.access_token);
       ctx.state.session.set("isLoggedIn", true);
       ctx.state.session.set("mfa_success", true);
       next();
-    } catch (err) {
+    } 
+    catch(err) {
       ctx.state.session.set("isLoggedIn", false);
       ctx.response.status = 401;
       ctx.response.body = {
         success: false,
-        message: "Unable to retrieve token",
+        message: "Unable to log in with Discord",
       };
+      console.log('There was a problem logging in with Discord: ', err)
       return;
     }
   };
@@ -103,12 +108,10 @@ export class DiscordOAuth {
       await ctx.state.session.has("isLoggedIn") &&
       await ctx.state.session.get("isLoggedIn")
     ) {
-      console.log("local auth worked");
       if (
         await ctx.state.session.has("mfa_success") &&
         await ctx.state.session.get("mfa_success")
       ) {
-        console.log("mfa worked");
         return next();
       }
     }

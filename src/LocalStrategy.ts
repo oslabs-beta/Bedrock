@@ -93,14 +93,11 @@ export class LocalStrategy {
     // console.log('MFA success', await ctx.state.session.get('mfa_success'));
 
     if (await ctx.state.session.has('isLoggedIn') && await ctx.state.session.get('isLoggedIn')) {
-      console.log('local auth worked');
       if (!this.mfa_enabled || (this.mfa_enabled && await ctx.state.session.has('mfa_success') && await ctx.state.session.get('mfa_success'))) {
-        console.log('mfa worked');
         return next();
       }
     }
     //do we need to let the developer provide a page to redirect to?
-    console.log('auth failed');
     ctx.response.redirect('/blocked.html');
     // ctx.response.status = 401;
     // ctx.response.body = {

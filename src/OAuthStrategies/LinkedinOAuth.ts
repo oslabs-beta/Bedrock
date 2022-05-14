@@ -26,14 +26,12 @@ export class LinkedinOAuth {
 
     if (this.state === undefined) {
       this.state = "";
-      const alphanum: string =
-        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const alphanum = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
       for (let i = 0; i < 20; i++) {
         this.state += alphanum[Math.floor(Math.random() * alphanum.length)];
       }
     }
-
-    for (let prop in this) {
+    for (const prop in this) {
       if (this[prop] !== undefined && prop !== "provider" && prop !== "client_secret" && typeof this[prop] === 'string') {
         uri += `${prop}=${this[prop]}&`;
       }
@@ -46,28 +44,23 @@ export class LinkedinOAuth {
    * 
    */
   getToken = async (ctx: Context, next: () => Promise<unknown>) => {
-    const params = helpers.getQuery(ctx, { mergeParams: true });    
-    const { code, state } = params;    
-
-    if (state !== this.state) {
-      console.log("State validation on incoming response failed");
-      ctx.state.session.set("isLoggedIn", false);
-      ctx.response.status = 401;
-      ctx.response.body = {
-        success: false,
-        message: "Unable to log in via Github",
-      };
-      throw new Error();
-    }
-
     try {
+      const params = helpers.getQuery(ctx, { mergeParams: true });    
+      const { code, state } = params;    
+
+      if (params.error) throw new Error('User did not authorize app');
+      
+      if (state !== this.state) {
+        ctx.state.session.set("isLoggedIn", false);
+        throw new Error('State validation on incoming response failed');
+      }
+      // BOO
       const token = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
         method: "POST",
         headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         },
-        body: JSON.stringify({
+        body: new URLSearchParams({
           client_id: this.client_id,
           client_secret: this.client_secret,
           code,
@@ -75,19 +68,28 @@ export class LinkedinOAuth {
           redirect_uri: this.redirect_uri,
         }),
       });
+      
+      if (token.status !== 200) {
+        // console.log('Unsuccessful authentication, logging response');
+        // console.log(body);
+        throw new Error('Unsuccessful authentication response')
+      }
 
-      const { access_token } = await token.json();
-      ctx.state.session.set("accessToken", access_token);
+      const body = await token.json();
+      
+      ctx.state.session.set("accessToken", body.access_token);
       ctx.state.session.set("isLoggedIn", true);
       ctx.state.session.set("mfa_success", true);
-      next();
-    } catch (err) {
+      return next();
+    } 
+    catch (err) {
       ctx.state.session.set("isLoggedIn", false);
       ctx.response.status = 401;
       ctx.response.body = {
         success: false,
-        message: "Unable to retrieve token",
+        message: "Unable to login via LinkedIn."
       };
+      console.log('There was a problem logging in with LinkedIn: ', err);
       return;
     }
   };
@@ -97,12 +99,10 @@ export class LinkedinOAuth {
       await ctx.state.session.has("isLoggedIn") &&
       await ctx.state.session.get("isLoggedIn")
     ) {
-      console.log("local auth worked");
       if (
         await ctx.state.session.has("mfa_success") &&
         await ctx.state.session.get("mfa_success")
       ) {
-        console.log("mfa worked");
         return next();
       }
     }
