@@ -76,7 +76,7 @@ export class TwitterOAuth {
         throw new Error('State validation on incoming response failed');
       }
       const authHeader = encode64(`${this.client_id}:${this.client_secret}`);
-      console.log('this is the authheader: ', authHeader);
+      //console.log('this is the authheader: ', authHeader);
       
       const token = await fetch(
         "https://api.twitter.com/2/oauth2/token",

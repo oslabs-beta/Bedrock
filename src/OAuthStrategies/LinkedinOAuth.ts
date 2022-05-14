@@ -70,13 +70,10 @@ export class LinkedinOAuth {
       });
       
       if (token.status !== 200) {
-        // console.log('Unsuccessful authentication, logging response');
-        // console.log(body);
         throw new Error('Unsuccessful authentication response')
       }
 
       const body = await token.json();
-      
       ctx.state.session.set("accessToken", body.access_token);
       ctx.state.session.set("isLoggedIn", true);
       ctx.state.session.set("mfa_success", true);

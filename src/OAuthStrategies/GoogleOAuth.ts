@@ -27,14 +27,13 @@ export class GoogleOAuth {
     let uri = "http://accounts.google.com/o/oauth2/v2/auth?";
     if (this.state === undefined) {
       this.state = "";
-      const alphanum: string =
-        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const alphanum = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
       for (let i = 0; i < 20; i++) {
         this.state += alphanum[Math.floor(Math.random() * alphanum.length)];
       }
     }
     // Adding defined props to uri and including only props that are strings (exludes functions)
-    for (let prop in this) {
+    for (const prop in this) {
       if (this[prop] !== undefined && prop !== "provider" && prop !== "client_secret" && typeof this[prop] === 'string') {
         uri += `${prop}=${this[prop]}&`;
       }
@@ -80,10 +79,9 @@ export class GoogleOAuth {
       });
       
       if (token.status !== 200) {
-        // console.log('Unsuccessful authentication, logging response');
-        // console.log(body);
         throw new Error('Unsuccessful authentication response');
       }
+
       const body = await token.json();
       ctx.state.session.set("accessToken", body.access_token);
       ctx.state.session.set("isLoggedIn", true);
