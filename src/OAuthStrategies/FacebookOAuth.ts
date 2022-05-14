@@ -1,29 +1,28 @@
 // import { OAuthStrategyParams } from './bedrock.ts'
 import { Context, helpers } from "./../deps.ts";
-import { GithubOAuthParams } from "./../types.ts";
+import { FacebookOAuthParams } from "./../types.ts"
 
-export class GithubOAuth {
-  provider = 'Github';
+export class FacebookOAuth {
+  provider = "Facebook";
   client_id: string;
-  client_secret: string;
   redirect_uri: string;
+  client_secret: string;
   state?: string;
-  login?: string;
+  response_type?: "code";
   scope?: string;
-  allow_signup?: string;
 
-  constructor(stratParams: GithubOAuthParams) {
-    this.client_id = stratParams.client_id;
-    this.client_secret = stratParams.client_secret;
+  constructor(stratParams: FacebookOAuthParams) {
+    this.client_id = stratParams.client_id;    
     this.redirect_uri = stratParams.redirect_uri;
+    this.client_secret = stratParams.client_secret;
     Object.assign(this, stratParams)!;
   }
 
   /**
    * Appends client info onto uri string and redirects to generated link.
    */
-  sendRedirect = (ctx: Context): string => {
-    let uri = "http://github.com/login/oauth/authorize?";
+  sendRedirect = (ctx: Context): void => {
+    let uri = "https://www.facebook.com/v13.0/dialog/oauth?";
     if (this.scope !== undefined) {
       uri += `scope=${this.scope}&`;
     }
@@ -43,13 +42,12 @@ export class GithubOAuth {
     }
     uri = uri.slice(0, uri.length - 1); 
     ctx.response.redirect(uri);
-    return uri;
+    return;
   };
   /**
    * 
    */
   getToken = async (ctx: Context, next: () => Promise<unknown>) => {
-
     const params = helpers.getQuery(ctx, { mergeParams: true });    
     const { code, state } = params;    
 
@@ -59,22 +57,24 @@ export class GithubOAuth {
       ctx.response.status = 401;
       ctx.response.body = {
         success: false,
-        message: "Unable to log in via Github",
+        message: "Unable to log in via Facebook",
       };
-      return new Error('Unable to log in via Github');
+      throw new Error();
     }
 
     try {
-      const token = await fetch("https://github.com/login/oauth/access_token", {
+      const token = await fetch("https://graph.facebook.com/v13.0/oauth/access_token?", {
         method: "POST",
         headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
         },
-        body: JSON.stringify({
+        body: new URLSearchParams({
           client_id: this.client_id,
+          redirect_uri: this.redirect_uri,
           client_secret: this.client_secret,
           code,
+        //   grant_type: 'authorization-code',
         }),
       });
 
@@ -90,8 +90,7 @@ export class GithubOAuth {
       ctx.state.session.set("isLoggedIn", true);
       ctx.state.session.set("mfa_success", true);
       next();
-    } 
-    catch(err) {
+    } catch (err) {
       ctx.state.session.set("isLoggedIn", false);
       ctx.response.status = 401;
       ctx.response.body = {

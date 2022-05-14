@@ -8,7 +8,7 @@ import { SMSRequest, Incoming } from './types.ts'
  *  Secret - associated secret with the username 
  */
 export class TwilioSMS {
-  public authorizationHeader: string;
+  public readonly authorizationHeader: string;
 
   constructor(private accountSID: string, private secret: string, private authToken: string) {
     //building the basic access authentication header that must be sent with every HTTP request to the Twilio API, which requires base64 encoding

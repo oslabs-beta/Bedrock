@@ -1,31 +1,35 @@
 // import { OAuthStrategyParams } from './bedrock.ts'
 import { Context, helpers } from "./../deps.ts";
-import { GithubOAuthParams } from "./../types.ts";
+import { DiscordOAuthParams } from "./../types.ts"
 
-export class GithubOAuth {
-  provider = 'Github';
+export class DiscordOAuth {
+  provider = "Discord"; 
   client_id: string;
   client_secret: string;
+  grant_type = "authorization_code";
   redirect_uri: string;
-  state?: string;
-  login?: string;
+  response_type = 'code';
   scope?: string;
-  allow_signup?: string;
+  state?: string;
+  
 
-  constructor(stratParams: GithubOAuthParams) {
+  constructor(stratParams: DiscordOAuthParams) {
     this.client_id = stratParams.client_id;
     this.client_secret = stratParams.client_secret;
     this.redirect_uri = stratParams.redirect_uri;
+    this.scope = stratParams.scope;
     Object.assign(this, stratParams)!;
   }
 
   /**
    * Appends client info onto uri string and redirects to generated link.
    */
-  sendRedirect = (ctx: Context): string => {
-    let uri = "http://github.com/login/oauth/authorize?";
+  sendRedirect = (ctx: Context): void => {
+    let uri = "https://discord.com/api/oauth2/authorize?";
     if (this.scope !== undefined) {
       uri += `scope=${this.scope}&`;
+    } else{
+      uri += `scope=identify`;
     }
     if (this.state === undefined) {
       this.state = "";
@@ -43,49 +47,45 @@ export class GithubOAuth {
     }
     uri = uri.slice(0, uri.length - 1); 
     ctx.response.redirect(uri);
-    return uri;
+    return;
   };
   /**
    * 
    */
   getToken = async (ctx: Context, next: () => Promise<unknown>) => {
-
-    const params = helpers.getQuery(ctx, { mergeParams: true });    
-    const { code, state } = params;    
-
-    if (state !== this.state) {
-      console.log("State validation on incoming response failed");
-      ctx.state.session.set("isLoggedIn", false);
-      ctx.response.status = 401;
-      ctx.response.body = {
-        success: false,
-        message: "Unable to log in via Github",
-      };
-      return new Error('Unable to log in via Github');
-    }
-
     try {
-      const token = await fetch("https://github.com/login/oauth/access_token", {
+      const params = helpers.getQuery(ctx, { mergeParams: true });    
+      const { code, state } = params;    
+
+      if (params.error) throw new Error('User did not authorize app');
+
+      if (state !== this.state) {
+        ctx.state.session.set("isLoggedIn", false);
+        throw new Error('State validation on incoming response failed');
+      }
+
+      const token = await fetch("https://discord.com/api/oauth2/token", {
         method: "POST",
         headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         },
-        body: JSON.stringify({
+        body: new URLSearchParams({
           client_id: this.client_id,
           client_secret: this.client_secret,
           code,
+          grant_type: 'authorization_code',
+          redirect_uri: this.redirect_uri
         }),
       });
+      
+      if (token.status !== 200) {
+        // console.log('Unsuccessful authentication, logging response');
+        // console.log(body);
+        throw new Error('Unsuccessful authentication response')
+      }
 
       const body = await token.json();
 
-      if (token.status !== 200) {
-        console.log('Unsuccessful authentication, logging response');
-        console.log(body);
-        throw new Error(`Unsuccessful authentication response`)
-      }
-     
       ctx.state.session.set("accessToken", body.access_token);
       ctx.state.session.set("isLoggedIn", true);
       ctx.state.session.set("mfa_success", true);
@@ -96,8 +96,9 @@ export class GithubOAuth {
       ctx.response.status = 401;
       ctx.response.body = {
         success: false,
-        message: "Unable to retrieve token",
+        message: "Unable to log in with Discord",
       };
+      console.log('There was a problem logging in with Discord: ', err)
       return;
     }
   };
