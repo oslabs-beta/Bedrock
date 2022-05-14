@@ -49,22 +49,17 @@ export class GithubOAuth {
    * 
    */
   getToken = async (ctx: Context, next: () => Promise<unknown>) => {
-
-    const params = helpers.getQuery(ctx, { mergeParams: true });    
-    const { code, state } = params;    
-
-    if (state !== this.state) {
-      console.log("State validation on incoming response failed");
-      ctx.state.session.set("isLoggedIn", false);
-      ctx.response.status = 401;
-      ctx.response.body = {
-        success: false,
-        message: "Unable to log in via Github",
-      };
-      return new Error('Unable to log in via Github');
-    }
-
     try {
+      const params = helpers.getQuery(ctx, { mergeParams: true });    
+      const { code, state } = params;    
+
+      if (params.error) throw new Error('User did not authorize app');
+
+      if (state !== this.state) {
+        ctx.state.session.set("isLoggedIn", false);
+        throw new Error('State validation on incoming response failed');
+      }
+
       const token = await fetch("https://github.com/login/oauth/access_token", {
         method: "POST",
         headers: {
@@ -78,14 +73,11 @@ export class GithubOAuth {
         }),
       });
 
-      const body = await token.json();
-
       if (token.status !== 200) {
-        console.log('Unsuccessful authentication, logging response');
-        console.log(body);
         throw new Error(`Unsuccessful authentication response`)
       }
-     
+
+      const body = await token.json();
       ctx.state.session.set("accessToken", body.access_token);
       ctx.state.session.set("isLoggedIn", true);
       ctx.state.session.set("mfa_success", true);
@@ -96,8 +88,9 @@ export class GithubOAuth {
       ctx.response.status = 401;
       ctx.response.body = {
         success: false,
-        message: "Unable to retrieve token",
+        message: "Unable to login via Github",
       };
+      console.log('There was a problem logging in with Github: ', err);
       return;
     }
   };

@@ -31,10 +31,10 @@ export class DiscordOAuth {
     } else{
       uri += `scope=identify`;
     }
+    
     if (this.state === undefined) {
       this.state = "";
-      const alphanum: string =
-        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const alphanum = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
       for (let i = 0; i < 20; i++) {
         this.state += alphanum[Math.floor(Math.random() * alphanum.length)];
       }
@@ -77,15 +77,12 @@ export class DiscordOAuth {
           redirect_uri: this.redirect_uri
         }),
       });
-      
+
       if (token.status !== 200) {
-        // console.log('Unsuccessful authentication, logging response');
-        // console.log(body);
         throw new Error('Unsuccessful authentication response')
       }
 
       const body = await token.json();
-
       ctx.state.session.set("accessToken", body.access_token);
       ctx.state.session.set("isLoggedIn", true);
       ctx.state.session.set("mfa_success", true);
