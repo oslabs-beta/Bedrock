@@ -22,16 +22,18 @@
 import { LocalStrategy } from "./LocalStrategy.ts";
 import { GoogleOAuth } from "./OAuthStrategies/GoogleOAuth.ts";
 import { GithubOAuth } from "./OAuthStrategies/GithubOAuth.ts";
-import { LinkedinOAuth } from './OAuthStrategies/LinkedinOAuth.ts';
-import { DiscordOAuth } from './OAuthStrategies/DiscordOAuth.ts';
-import { FacebookOAuth } from './OAuthStrategies/FacebookOAuth.ts';
+import { LinkedinOAuth } from "./OAuthStrategies/LinkedinOAuth.ts";
+import { DiscordOAuth } from "./OAuthStrategies/DiscordOAuth.ts";
+import { FacebookOAuth } from "./OAuthStrategies/FacebookOAuth.ts";
+import { TwitterOAuth } from "./OAuthStrategies/TwitterOAuth.ts";
 import {
-  LinkedinOAuthParams,
-  GithubOAuthParams,
-  GoogleOAuthParams,
-  LocalStrategyParams,
   DiscordOAuthParams,
   FacebookOAuthParams,
+  GithubOAuthParams,
+  GoogleOAuthParams,
+  LinkedinOAuthParams,
+  LocalStrategyParams,
+  TwitterOAuthParams
 } from "./types.ts";
 
 // export type Strategy = 'Local Strategy' | 'Github Strategy';
@@ -42,7 +44,15 @@ export function initLocal(params: LocalStrategyParams): LocalStrategy {
   return new LocalStrategy(params);
 }
 
-export function initOAuth(params: GithubOAuthParams | GoogleOAuthParams | LinkedinOAuthParams | DiscordOAuthParams | FacebookOAuthParams) {
+export function initOAuth(
+  params:
+    | GithubOAuthParams
+    | GoogleOAuthParams
+    | LinkedinOAuthParams
+    | DiscordOAuthParams
+    | FacebookOAuthParams
+    | TwitterOAuthParams,
+) {
   switch (params.provider) {
     // case 'Local' && typeof params === LocalStrategyParams:
     //   return new LocalStrategy(params);
@@ -56,6 +66,8 @@ export function initOAuth(params: GithubOAuthParams | GoogleOAuthParams | Linked
       return new LinkedinOAuth(params);
     case "Facebook":
       return new FacebookOAuth(params);
+    case "Twitter":
+      return new TwitterOAuth(params);
     default:
       throw new Error(
         "Invalid input on initOauth constuctor - see log for more information",
