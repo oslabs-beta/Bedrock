@@ -6,3 +6,4 @@ export { crypto } from "https://deno.land/std@0.136.0/crypto/mod.ts";
 export { decode as decode32} from "https://deno.land/std@0.136.0/encoding/base32.ts";
 export { SMTPClient } from 'https://deno.land/x/denomailer@1.0.1/mod.ts';
 export { decode as decode64url, encode as encode64url } from "https://deno.land/std@0.139.0/encoding/base64url.ts";
+export { describe, it } from "https://deno.land/std@0.139.0/testing/bdd.ts";

@@ -14,24 +14,36 @@ import { LocalAuthParams, OAuthParams } from "./types.ts";
  * @returns
  */
 export function init(params: OAuthParams | LocalAuthParams) {
+  let strategy: DiscordOAuth | FacebookOAuth | GithubOAuth | GoogleOAuth | LinkedinOAuth | LocalAuth | TwitterOAuth;
+
   switch (params.provider) {
     case "Local":
-      return new LocalAuth(params);
+      strategy = new LocalAuth(params);      
+      break;
     case "Discord":
-      return new DiscordOAuth(params);
+      strategy = new DiscordOAuth(params);
+      break;
     case "Google":
-      return new GoogleOAuth(params);
+      strategy = new GoogleOAuth(params);
+      break;
     case "Github":
-      return new GithubOAuth(params);
+      strategy = new GithubOAuth(params);
+      break;
     case "Linkedin":
-      return new LinkedinOAuth(params);
+      strategy = new LinkedinOAuth(params);
+      break;
     case "Facebook":
-      return new FacebookOAuth(params);
+      strategy = new FacebookOAuth(params);
+      break;
     case "Twitter":
-      return new TwitterOAuth(params);
+      strategy = new TwitterOAuth(params);
+      break;
     default:
       throw new Error(
         "Invalid input on init constuctor - see log for more information",
       );
   }
+
+  console.info(`Successfully initialized ${params.provider} strategy!`);
+  return strategy;
 }

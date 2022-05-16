@@ -97,8 +97,6 @@ const BedrockDiscord: any = init(DiscordParams);
 const BedrockFacebook: any = init(FacebookParams);
 const BedrockTwitter: any = init(TwitterParams);
 
-console.log(Bedrock);
-
 MFARouter.get("/", async (ctx: Context) => {
   await ctx.send({
     root: `${Deno.cwd()}/demo/client`,

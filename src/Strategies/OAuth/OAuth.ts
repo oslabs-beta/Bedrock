@@ -89,21 +89,4 @@ export class OAuth extends Auth{
     uri = uri.slice(0, uri.length - 1); 
     return uri;
   }
-  
-  // // All properties across all other providers
-  // //provider = "Discord"; 
-  // grant_type = "authorization_code";    //hard code in since it will always be "authorization_code"
-
-  // //provider = "Facebook";  
-
-  // //provider = 'Github';  
-
-  // // provider = "Google";
-  // access_type?: "online" | "offline";
-  // prompt?: "none" | "consent" | "select_account";
-
-  // // provider = "Linkedin";  
-
-  // // provider = "Twitter"; 
-  // code_challenge_method = "S256";
 }

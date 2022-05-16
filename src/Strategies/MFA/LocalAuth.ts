@@ -59,7 +59,6 @@ export class LocalAuth extends Auth {
     }
 
     const [username, password] = [credentials[0], credentials[1]];
-    console.log(username, password);
     await ctx.state.session.set("username", username);
 
     if (await this.checkCreds(username, password)) {
@@ -72,7 +71,6 @@ export class LocalAuth extends Auth {
       await ctx.state.session.set("isLoggedIn", false);
       ctx.state.localVerified = false;
     }
-    // console.log(await ctx.state.session);
 
     next();
     // Developer needs to check the state property localVerified to redirect user
@@ -111,9 +109,6 @@ export class LocalAuth extends Auth {
     );
     const currentTOTP = await generateTOTP(mfaSecret);
 
-    console.log("current array of TOTPs:", currentTOTP);
-    console.log("current inputted code:", bodyValue.code);
-
     const verified = currentTOTP.some((totp) => {
       return totp === bodyValue.code;
     });
@@ -149,7 +144,7 @@ export class LocalAuth extends Auth {
     if (this.mfa_type === "SMS") {
       const sms = new Twilio(this.accountSID!, secret, this.authToken!);
       const context: Incoming = {
-        From: "+17164543649",
+        From: "+17164543649", //need to use env or pass into class initialization for developer to add phone number
         To: await this.getNumber!(await ctx.state.session.get("username"))!,
       };
       await sms.sendSms(context);
@@ -167,7 +162,7 @@ export class LocalAuth extends Auth {
 
       const newEmail: SendConfig = {
         from: this.fromAddress!,
-        to: "bedrock.deno@gmail.com",
+        to: "bedrock.deno@gmail.com", //need to use env or pass into class intialization
         subject: subjectText,
         content: contentText,
         html: htmlText,
