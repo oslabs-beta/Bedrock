@@ -1,13 +1,13 @@
-import { encode64 } from './deps.ts';
+import { encode64 } from './../../deps.ts';
 import { generateTOTP } from './totp.ts'
-import { SMSRequest, Incoming } from './types.ts'
+import { SMSRequest, Incoming } from './../../types.ts'
 
 /**
  * TwilioSMS class requires 3 passed in properties: 
  *  AccountSID and AuthToken (provided by Twilio upon account creation)
- *  Secret - associated secret with the username 
+ *  Secret - secret associated with with the username 
  */
-export class TwilioSMS {
+export class Twilio {
   public readonly authorizationHeader: string;
 
   constructor(private accountSID: string, private secret: string, private authToken: string) {
@@ -15,14 +15,12 @@ export class TwilioSMS {
     this.authorizationHeader = 'Basic ' + encode64(`${accountSID}:${authToken}`);
   }
 
-  //async function 
   /**
    * @param payload object
    * returns promise<string>
    * 
    * Sends a post request to the TwilioSMS API 
-   * Content-type of the SMS message is passed as url-encoded form 
-     ex. key1=value1&key2=value2
+   * Content-type of the SMS message is passed as url-encoded form (ex. key1=value1&key2=value2)
    * postSMSRequest utilizes the authorizationHeader property as the authorization header
    * The content of the SMS message (payload) is passed within the body after invoking the URLSearchParams function
    */
@@ -43,7 +41,7 @@ export class TwilioSMS {
     )
     const response = await data.json();
     const { body } = response;
-    //returning only the body of the response object 
+    //returning only the body of the response object, which is the code that was sent to the end-user
     return body;
   }
   /**

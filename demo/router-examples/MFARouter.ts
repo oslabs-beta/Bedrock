@@ -1,13 +1,13 @@
 import { Router, Context } from "../../src/deps.ts";
 import dbController from '../controller/controller.ts';
 import { initLocal } from '../../src/bedrock.ts'
-import { LocalStrategyParams } from '../../src/types.ts'
+import { LocalAuthParams } from '../../src/types.ts'
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
 
 export const MFARouter = new Router();
 
 // Inputting the parameters for Local Authentication and MFA
-const params: LocalStrategyParams = {
+const params: LocalAuthParams = {
   mfa_enabled : true,
   checkCreds : dbController.checkCreds,
   mfa_type: "Token",

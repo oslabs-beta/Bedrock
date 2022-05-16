@@ -1,76 +1,49 @@
-/**
- * First Auth Middleware
- * 1. Get credentials
- *    -POST body
- *    -Authorization header (Basic -CREDENTIALSINBASE64-) [potentially create a frontend function that does this for the developer]
- *  Extracting credentials: return 2 strings, a username and a password:
- *    by default, we will use Authorization header, however we will provide an optional parameter where they can insert their own custom verification function
- * 2. Verify that username/password is correct
- *  Execute a function given to us by the developer that queries the database and returns true/false
- * 3. Set login property (in session) to true
- * 4. Redirect to MFA route (if enabled)
- *
- * Session Template:
- * {
- *  isLoggedin: boolean,
- *  mfa_success: boolean
- *  username: string,
- * }
- */
-
-// Interface definitions
-import { LocalStrategy } from "./LocalStrategy.ts";
-import { GoogleOAuth } from "./OAuthStrategies/GoogleOAuth.ts";
-import { GithubOAuth } from "./OAuthStrategies/GithubOAuth.ts";
-import { LinkedinOAuth } from "./OAuthStrategies/LinkedinOAuth.ts";
-import { DiscordOAuth } from "./OAuthStrategies/DiscordOAuth.ts";
-import { FacebookOAuth } from "./OAuthStrategies/FacebookOAuth.ts";
-import { TwitterOAuth } from "./OAuthStrategies/TwitterOAuth.ts";
 import {
-  DiscordOAuthParams,
-  FacebookOAuthParams,
-  GithubOAuthParams,
-  GoogleOAuthParams,
-  LinkedinOAuthParams,
-  LocalStrategyParams,
-  TwitterOAuthParams
-} from "./types.ts";
+  DiscordOAuth,
+  FacebookOAuth,
+  GithubOAuth,
+  GoogleOAuth,
+  LinkedinOAuth,
+  LocalAuth,
+  TwitterOAuth,
+} from "./strategies.ts";
+import { LocalAuthParams, OAuthParams } from "./types.ts";
 
-// export type Strategy = 'Local Strategy' | 'Github Strategy';
-// export type Strategy = 'Github Strategy'
+/**
+ * @param params
+ * @returns
+ */
+export function init(params: OAuthParams | LocalAuthParams) {
+  let strategy: DiscordOAuth | FacebookOAuth | GithubOAuth | GoogleOAuth | LinkedinOAuth | LocalAuth | TwitterOAuth;
 
-//Main Functions
-export function initLocal(params: LocalStrategyParams): LocalStrategy {
-  return new LocalStrategy(params);
-}
-
-export function initOAuth(
-  params:
-    | GithubOAuthParams
-    | GoogleOAuthParams
-    | LinkedinOAuthParams
-    | DiscordOAuthParams
-    | FacebookOAuthParams
-    | TwitterOAuthParams,
-) {
   switch (params.provider) {
-    // case 'Local' && typeof params === LocalStrategyParams:
-    //   return new LocalStrategy(params);
+    case "Local":
+      strategy = new LocalAuth(params);      
+      break;
     case "Discord":
-      return new DiscordOAuth(params);
+      strategy = new DiscordOAuth(params);
+      break;
     case "Google":
-      return new GoogleOAuth(params);
+      strategy = new GoogleOAuth(params);
+      break;
     case "Github":
-      return new GithubOAuth(params);
+      strategy = new GithubOAuth(params);
+      break;
     case "Linkedin":
-      return new LinkedinOAuth(params);
+      strategy = new LinkedinOAuth(params);
+      break;
     case "Facebook":
-      return new FacebookOAuth(params);
+      strategy = new FacebookOAuth(params);
+      break;
     case "Twitter":
-      return new TwitterOAuth(params);
+      strategy = new TwitterOAuth(params);
+      break;
     default:
       throw new Error(
-        "Invalid input on initOauth constuctor - see log for more information",
+        "Invalid input on init constuctor - see log for more information",
       );
   }
+
+  console.info(`Successfully initialized ${params.provider} strategy!`);
+  return strategy;
 }

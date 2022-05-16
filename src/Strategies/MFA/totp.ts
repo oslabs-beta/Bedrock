@@ -3,8 +3,8 @@
  * in Deno as well as a pseudorandom secret generator in base32
  */
 
- import { crypto } from "./deps.ts";
- import { decode32 } from "./deps.ts";
+ import { crypto } from "../../deps.ts";
+ import { decode32 } from "../../deps.ts";
 
 // HMAC-SHA1 implementation
 async function hmacSHA1(k: Uint8Array, m: Uint8Array): Promise<Uint8Array> {
@@ -58,13 +58,16 @@ async function hmacSHA1(k: Uint8Array, m: Uint8Array): Promise<Uint8Array> {
 }
 
 // Returns array of TOTP codes
-export async function generateTOTP(secret:string): Promise<string[]> {
-  // Recommended timestep based off RFC6238 is 30 seconds
-  const TIMESTEP = 30;
+export async function generateTOTP(secret:string, numTimeSteps?: number): Promise<string[]> {
+  // In place in order to faciliate testing
+  if (numTimeSteps === undefined) {
+    // Recommended timestep based off RFC6238 is 30 seconds
+    const TIMESTEP = 30;
 
-  // Determine number of steps based off dividing the current Unix time by the timestep interval
-  const numTimeSteps: number = Math.floor(Math.round((new Date()).getTime() / 1000)/TIMESTEP);
-
+    // Determine number of steps based off dividing the current Unix time by the timestep interval
+    numTimeSteps = Math.floor(Math.round((new Date()).getTime() / 1000)/TIMESTEP);
+  }
+  
   // Generates TOTP based off current UNIX time - broken into function in order to invoke and return
   // array of 3 values, token before, during, and after
   async function TOTP(timeSteps: number): Promise<string> {
