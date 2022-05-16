@@ -1,7 +1,7 @@
-import { Context, helpers } from "./../deps.ts";
-import { OAuthParams } from "./../types.ts";
+import { OAuthParams } from "../../types.ts";
+import { Auth } from "../Auth.ts";
 
-export class OAuth {
+export class OAuth extends Auth{
   /**
    * Universal OAuth properties and constructor method
    */
@@ -17,6 +17,7 @@ export class OAuth {
   protected readonly URIprops: string[] = ['client_id', 'redirect_uri', 'scope', 'response_type'];
 
   constructor(stratParams: OAuthParams) {
+    super();
     this.client_id = stratParams.client_id;
     this.client_secret = stratParams.client_secret;
     this.redirect_uri = stratParams.redirect_uri;

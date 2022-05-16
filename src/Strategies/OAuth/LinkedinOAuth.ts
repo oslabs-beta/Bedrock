@@ -1,10 +1,10 @@
-import { Context, helpers } from "./../deps.ts";
-import { OAuthParams } from "./../types.ts";
+import { Context, helpers } from "../../deps.ts";
+import { OAuthParams } from "../../types.ts";
 import { OAuth } from './OAuth.ts';
 
-export class GithubOAuth extends OAuth {
+export class LinkedinOAuth extends OAuth{
   constructor(stratParams: OAuthParams) {
-    super(stratParams)
+    super(stratParams);
   }
 
   /**
@@ -16,44 +16,45 @@ export class GithubOAuth extends OAuth {
     let uri = this.uriBuilder();
     ctx.state.session.set("state", this.randomStringGenerator(20));
 
-    uri += `&state=${await ctx.state.session.get('state')}`;
+    uri += `&state=${await ctx.state.session.get("state")}`;
     
     ctx.response.redirect(uri);
     return;
   };
 
   /**
-   * Functionality to generate post request to Discord server to obtain access token
+   * 
    * @param ctx 
    * @param next 
    * @returns 
-   **/
+   */
   getToken = async (ctx: Context, next: () => Promise<unknown>) => {
     try {
       const params = helpers.getQuery(ctx, { mergeParams: true });    
       const { code, state } = params;    
 
       if (params.error) throw new Error('User did not authorize app');
-
-      if (state !== await ctx.state.session.get('state')) {
+      
+      if (state !== await ctx.state.session.get("state")) {
         throw new Error('State validation on incoming response failed');
       }
 
-      const response = await fetch("https://github.com/login/oauth/access_token", {
+      const response = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Accept" : "application/json"
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         },
-        body: JSON.stringify({
+        body: new URLSearchParams({
           client_id: this.client_id,
           client_secret: this.client_secret,
-          code
+          code,
+          grant_type: 'authorization_code',
+          redirect_uri: this.redirect_uri,
         }),
       });
       
       const token = await response.json();
-      
+
       if (response.status !== 200) {
         console.log('Failed Response Body: ', token);
         throw new Error('Unsuccessful authentication response');
@@ -71,11 +72,11 @@ export class GithubOAuth extends OAuth {
       ctx.state.OAuthVerified = true;
       ctx.state.token = token;
     } 
-    catch(err) {
+    catch (err) {
       ctx.state.session.set("isLoggedIn", false);
       ctx.state.OAuthVerified = false;
 
-      console.log('There was a problem logging in with Github: ', err)
+      console.log('There was a problem logging in with LinkedIn: ', err)
     }
 
     return next();

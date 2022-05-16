@@ -8,7 +8,7 @@ export type { RouterMiddleware } from "https://deno.land/x/oak@v10.5.1/mod.ts";
  */
 
 // Local Authentication configuration object
-export type LocalStrategyParams = {
+export type LocalAuthParams = {
   provider: "Local";
   checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_type: "Token";
@@ -26,7 +26,6 @@ export type LocalStrategyParams = {
 } | {
   provider: "Local";
   checkCreds: (username: string, password: string) => Promise<boolean>;
-  mfa_enabled: false;
   readCreds?: (ctx: Context) => Promise<string[]>;
 } | {
   provider: "Local";

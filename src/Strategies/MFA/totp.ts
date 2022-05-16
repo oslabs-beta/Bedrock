@@ -3,8 +3,8 @@
  * in Deno as well as a pseudorandom secret generator in base32
  */
 
- import { crypto } from "./deps.ts";
- import { decode32 } from "./deps.ts";
+ import { crypto } from "../../deps.ts";
+ import { decode32 } from "../../deps.ts";
 
 // HMAC-SHA1 implementation
 async function hmacSHA1(k: Uint8Array, m: Uint8Array): Promise<Uint8Array> {

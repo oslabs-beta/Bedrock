@@ -1,6 +1,6 @@
 import { isHttpError, Context } from "../../src/deps.ts";
 import { Users } from '../server/model.ts';
-import { generateTOTPSecret} from '../../src/totp.ts';
+import { generateTOTPSecret} from '../../src/Strategies/MFA/totp.ts';
 import { RouterMiddleware } from '../../src/types.ts'
 
 const dbController: Controller = { 

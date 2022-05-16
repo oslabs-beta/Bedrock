@@ -3,10 +3,11 @@ import dbController from "../controller/controller.ts";
 import { init } from "../../src/bedrock.ts";
 import {
   ClientOptions,
+  LocalAuthParams,
   OAuthParams,
-  LocalStrategyParams
 } from "../../src/types.ts";
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
+import { GithubOAuth } from "../../src/Strategies/OAuth/GithubOAuth.ts";
 
 export const MFARouter = new Router();
 
@@ -21,11 +22,11 @@ const clientOptions: ClientOptions = {
   },
 };
 
-const params: LocalStrategyParams = {
-  provider: 'Local',
+const params: LocalAuthParams = {
+  provider: "Local",
   checkCreds: dbController.checkCreds,
-  mfa_type: "SMS",
-  getSecret: dbController.getSecret,
+  // mfa_type: "SMS",
+  // getSecret: dbController.getSecret,
   readCreds: async (ctx: Context): Promise<string[]> => {
     const body = await ctx.request.body();
     const bodyValue = await body.value;
@@ -35,9 +36,9 @@ const params: LocalStrategyParams = {
   // getEmail: dbController.getEmail,
   // clientOptions: clientOptions,
   // fromAddress: Deno.env.get("EMAIL_FROM")!,
-  getNumber: dbController.getNumber,
-  accountSID: Deno.env.get('TWILIO_ACCOUNT_SID')!,
-  authToken: Deno.env.get('TWILIO_AUTH_TOKEN')!,
+  // getNumber: dbController.getNumber,
+  // accountSID: Deno.env.get("TWILIO_ACCOUNT_SID")!,
+  // authToken: Deno.env.get("TWILIO_AUTH_TOKEN")!,
 };
 
 const GithubParams: OAuthParams = {
@@ -45,7 +46,7 @@ const GithubParams: OAuthParams = {
   client_id: Deno.env.get("CLIENT_ID")!,
   client_secret: Deno.env.get("CLIENT_SECRET")!,
   redirect_uri: Deno.env.get("AUTH_CALLBACK_URL")!,
-  scope: 'read:user'
+  scope: "read:user",
 };
 
 const GParams: OAuthParams = {
@@ -77,7 +78,7 @@ const FacebookParams: OAuthParams = {
   client_id: Deno.env.get("FACEBOOK_CLIENT_ID")!,
   client_secret: Deno.env.get("FACEBOOK_CLIENT_SECRET")!,
   redirect_uri: "http://localhost:8080/OAuth/facebook/token",
-  scope: 'public_profile'
+  scope: "public_profile",
 };
 
 const TwitterParams: OAuthParams = {
@@ -85,7 +86,7 @@ const TwitterParams: OAuthParams = {
   client_id: Deno.env.get("TWITTER_CLIENT_ID")!,
   client_secret: Deno.env.get("TWITTER_CLIENT_SECRET")!,
   redirect_uri: "http://127.0.0.1:8080/OAuth/twitter/token",
-  scope: 'tweet.read users.read follows.read follows.write',
+  scope: "tweet.read users.read follows.read follows.write",
 };
 
 const Bedrock: any = init(params);
@@ -96,6 +97,8 @@ const BedrockDiscord: any = init(DiscordParams);
 const BedrockFacebook: any = init(FacebookParams);
 const BedrockTwitter: any = init(TwitterParams);
 
+console.log(Bedrock);
+
 MFARouter.get("/", async (ctx: Context) => {
   await ctx.send({
     root: `${Deno.cwd()}/demo/client`,
@@ -104,35 +107,35 @@ MFARouter.get("/", async (ctx: Context) => {
   return;
 });
 
-// MFARouter.post("/login", Bedrock.localLogin, (ctx: Context) => {
-//   if (ctx.state.localVerified) {
-//     ctx.response.body = {
-//       successful: true,
-//       mfa_required: ctx.state.mfaRequired,
-//     };
-//     ctx.response.status = 200;
-//   } else {
-//     ctx.response.body = {
-//       successful: false,
-//     };
-//     ctx.response.status = 401;
-//   }
-//   return;
-// });
+MFARouter.post("/login", Bedrock.localLogin, (ctx: Context) => {
+  if (ctx.state.localVerified) {
+    ctx.response.body = {
+      successful: true,
+      mfa_required: ctx.state.mfaRequired,
+    };
+    ctx.response.status = 200;
+  } else {
+    ctx.response.body = {
+      successful: false,
+    };
+    ctx.response.status = 401;
+  }
+  return;
+});
 
-// MFARouter.post("/verifyMFA", Bedrock.checkMFA, (ctx: Context) => {
-//   ctx.response.body = {
-//     mfaVerified: true,
-//     url: "http://localhost:8080/secret.html",
-//   };
-// });
+MFARouter.post("/verifyMFA", Bedrock.checkMFA, (ctx: Context) => {
+  ctx.response.body = {
+    mfaVerified: true,
+    url: "http://localhost:8080/secret.html",
+  };
+});
 
 MFARouter.get("/OAuth/github/login", BedrockGithub.sendRedirect);
 MFARouter.get("/OAuth/github/token", BedrockGithub.getToken, (ctx: Context) => {
   if (ctx.state.OAuthVerified) {
     ctx.response.redirect("/secret.html");
   } else {
-    ctx.response.redirect('/blocked.html');
+    ctx.response.redirect("/blocked.html");
   }
 });
 
@@ -141,53 +144,73 @@ MFARouter.get("/OAuth/google/token", BedrockGoogle.getToken, (ctx: Context) => {
   if (ctx.state.OAuthVerified) {
     ctx.response.redirect("/secret.html");
   } else {
-    ctx.response.redirect('/blocked.html');
+    ctx.response.redirect("/blocked.html");
   }
 });
 
 MFARouter.get("/OAuth/linkedin/login", BedrockLinkedin.sendRedirect);
-MFARouter.get("/OAuth/linkedin/token", BedrockLinkedin.getToken,  (ctx: Context) => {
-  if (ctx.state.OAuthVerified) {
-    ctx.response.redirect("/secret.html");
-  } else {
-    ctx.response.redirect('/blocked.html');
-  }
-});
+MFARouter.get(
+  "/OAuth/linkedin/token",
+  BedrockLinkedin.getToken,
+  (ctx: Context) => {
+    if (ctx.state.OAuthVerified) {
+      ctx.response.redirect("/secret.html");
+    } else {
+      ctx.response.redirect("/blocked.html");
+    }
+  },
+);
 
 MFARouter.get("/OAuth/discord/login", BedrockDiscord.sendRedirect);
-MFARouter.get("/OAuth/discord/token", BedrockDiscord.getToken, (ctx: Context) => {
-  if (ctx.state.OAuthVerified) {
-    ctx.response.redirect("/secret.html");
-  } else {
-    ctx.response.redirect('/blocked.html');
-  }
-});
+MFARouter.get(
+  "/OAuth/discord/token",
+  BedrockDiscord.getToken,
+  (ctx: Context) => {
+    if (ctx.state.OAuthVerified) {
+      ctx.response.redirect("/secret.html");
+    } else {
+      ctx.response.redirect("/blocked.html");
+    }
+  },
+);
 
 MFARouter.get("/OAuth/facebook/login", BedrockFacebook.sendRedirect);
-MFARouter.get("/OAuth/facebook/token", BedrockFacebook.getToken, (ctx: Context) => {
-  if (ctx.state.OAuthVerified) {
-    ctx.response.redirect("/secret.html");
-  } else {
-    ctx.response.redirect('/blocked.html');
-  }
-});
+MFARouter.get(
+  "/OAuth/facebook/token",
+  BedrockFacebook.getToken,
+  (ctx: Context) => {
+    if (ctx.state.OAuthVerified) {
+      ctx.response.redirect("/secret.html");
+    } else {
+      ctx.response.redirect("/blocked.html");
+    }
+  },
+);
 
 MFARouter.get("/OAuth/twitter/login", BedrockTwitter.sendRedirect);
-MFARouter.get("/OAuth/twitter/token", BedrockTwitter.getToken, (ctx: Context) => {
-  if (ctx.state.OAuthVerified) {
-    ctx.response.redirect("/secret.html");
-  } else {
-    ctx.response.redirect('/blocked.html');
-  }
-});
+MFARouter.get(
+  "/OAuth/twitter/token",
+  BedrockTwitter.getToken,
+  (ctx: Context) => {
+    if (ctx.state.OAuthVerified) {
+      ctx.response.redirect("/secret.html");
+    } else {
+      ctx.response.redirect("/blocked.html");
+    }
+  },
+);
 
-MFARouter.get("/secret.html", BedrockDiscord.verifyAuth, async (ctx: Context) => {
-  await ctx.send({
-    root: `${Deno.cwd()}/demo/client`,
-    path: `secret.html`,
-  });
-  return;
-});
+MFARouter.get(
+  "/secret.html",
+  BedrockDiscord.verifyAuth,
+  async (ctx: Context) => {
+    await ctx.send({
+      root: `${Deno.cwd()}/demo/client`,
+      path: `secret.html`,
+    });
+    return;
+  },
+);
 
 MFARouter.get("/logout", BedrockDiscord.signOut, (ctx: Context) => {
   ctx.response.redirect("/");

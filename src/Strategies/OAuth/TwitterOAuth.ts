@@ -1,11 +1,5 @@
-import {
-  Context,
-  crypto,
-  encode64url,
-  helpers,
-  encode64,
-} from "./../deps.ts";
-import { OAuthParams } from "./../types.ts";
+import { Context, crypto, encode64url, helpers, encode64, } from "./../../deps.ts";
+import { OAuthParams } from "./../../types.ts";
 import { OAuth } from './OAuth.ts';
 
   /**

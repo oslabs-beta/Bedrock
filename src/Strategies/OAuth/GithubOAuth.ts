@@ -1,10 +1,10 @@
-import { Context, helpers } from "./../deps.ts";
-import { OAuthParams } from "./../types.ts"
+import { Context, helpers } from "../../deps.ts";
+import { OAuthParams } from "../../types.ts";
 import { OAuth } from './OAuth.ts';
 
-export class DiscordOAuth extends OAuth{
+export class GithubOAuth extends OAuth {
   constructor(stratParams: OAuthParams) {
-    super(stratParams);
+    super(stratParams)
   }
 
   /**
@@ -21,7 +21,7 @@ export class DiscordOAuth extends OAuth{
     ctx.response.redirect(uri);
     return;
   };
-  
+
   /**
    * Functionality to generate post request to Discord server to obtain access token
    * @param ctx 
@@ -35,24 +35,23 @@ export class DiscordOAuth extends OAuth{
 
       if (params.error) throw new Error('User did not authorize app');
 
-      if (state !== await ctx.state.session.get("state")) {
+      if (state !== await ctx.state.session.get('state')) {
         throw new Error('State validation on incoming response failed');
       }
 
-      const response = await fetch("https://discord.com/api/oauth2/token", {
+      const response = await fetch("https://github.com/login/oauth/access_token", {
         method: "POST",
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          "Content-Type": "application/json",
+          "Accept" : "application/json"
         },
-        body: new URLSearchParams({
+        body: JSON.stringify({
           client_id: this.client_id,
           client_secret: this.client_secret,
-          code,
-          grant_type: 'authorization_code',
-          redirect_uri: this.redirect_uri
+          code
         }),
       });
-
+      
       const token = await response.json();
       
       if (response.status !== 200) {
@@ -76,7 +75,7 @@ export class DiscordOAuth extends OAuth{
       ctx.state.session.set("isLoggedIn", false);
       ctx.state.OAuthVerified = false;
 
-      console.log('There was a problem logging in with Discord: ', err)
+      console.log('There was a problem logging in with Github: ', err)
     }
 
     return next();

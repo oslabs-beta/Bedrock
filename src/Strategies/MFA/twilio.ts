@@ -1,13 +1,13 @@
-import { encode64 } from './deps.ts';
+import { encode64 } from './../../deps.ts';
 import { generateTOTP } from './totp.ts'
-import { SMSRequest, Incoming } from './types.ts'
+import { SMSRequest, Incoming } from './../../types.ts'
 
 /**
  * TwilioSMS class requires 3 passed in properties: 
  *  AccountSID and AuthToken (provided by Twilio upon account creation)
  *  Secret - associated secret with the username 
  */
-export class TwilioSMS {
+export class Twilio {
   public readonly authorizationHeader: string;
 
   constructor(private accountSID: string, private secret: string, private authToken: string) {
