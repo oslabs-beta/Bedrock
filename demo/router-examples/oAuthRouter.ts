@@ -1,12 +1,12 @@
-import { Router, Context } from "../../src/deps.ts";
-import { initOAuth } from '../../src/bedrock.ts'
-import { GithubOAuthParams } from '../../src/types.ts'
+export { Router, Context } from "https://deno.land/x/oak@v10.5.1/mod.ts";
+import { init } from '../../src/bedrock.ts';
+import { OAuthParams } from '../../src/types.ts';
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
 
 export const oAuthRouter = new Router();
 
 // Inputting the parameters for OAuth
-const params: GithubOAuthParams = {
+const params: OAuthParams = {
   provider: 'Github',
   client_id: Deno.env.get('CLIENT_ID')!,
   client_secret: Deno.env.get('CLIENT_SECRET')!,
@@ -17,7 +17,7 @@ const params: GithubOAuthParams = {
 }
 
 // Initializing the Bedrock library with the above parameters
-const Bedrock = initOAuth(params);
+const Bedrock = init(params);
 
 // Route to redirect user to OAuth provider's login site
 oAuthRouter.get('/OAuth', Bedrock.sendRedirect);

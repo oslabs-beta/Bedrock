@@ -1,59 +1,69 @@
 import { Context } from "./deps.ts";
-export type { SendConfig } from "https://deno.land/x/denomailer@1.0.1/mod.ts";
-export type { RouterMiddleware } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 
 /**
  * Defined below are the types to structure arguments across various classes
  * and methods in the Bedrock library
  */
 
-// Local Authentication configuration object
+/**
+ * LocalAuthParams type defines the parameters required to instantiate an
+ * instance of the LocalAuth class. Aliases are used to account for varying
+ * parameters depending on MFA type.
+ */
 export type LocalAuthParams = {
   provider: "Local";
-  checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_type: "Token";
-  readCreds?: (ctx: Context) => Promise<string[]>;
+  checkCreds: (username: string, password: string) => Promise<boolean>;
   getSecret: (username: string) => Promise<string>;
+  readCreds?: (ctx: Context) => Promise<string[]>;
 } | {
   provider: "Local";
-  checkCreds: (username: string, password: string) => Promise<boolean>;
   mfa_type: "SMS";
-  readCreds?: (ctx: Context) => Promise<string[]>;
+  checkCreds: (username: string, password: string) => Promise<boolean>;
   getSecret: (username: string) => Promise<string>;
   getNumber: (username: string) => Promise<string>;
   accountSID: string;
   authToken: string;
-} | {
-  provider: "Local";
-  checkCreds: (username: string, password: string) => Promise<boolean>;
   readCreds?: (ctx: Context) => Promise<string[]>;
 } | {
   provider: "Local";
   checkCreds: (username: string, password: string) => Promise<boolean>;
   readCreds?: (ctx: Context) => Promise<string[]>;
-  getSecret: (username: string) => Promise<string>;
+} | {
+  provider: "Local";
   mfa_type: "Email";
+  checkCreds: (username: string, password: string) => Promise<boolean>;
+  getSecret: (username: string) => Promise<string>;
   clientOptions: ClientOptions;
-  getEmail: (username: string) => Promise<string>;
   fromAddress: string;
+  getEmail: (username: string) => Promise<string>;
+  readCreds?: (ctx: Context) => Promise<string[]>;
 };
 
-// SMS configuration object
-export type SMSRequest = {
-  
-  
-  From: string; //the twilio phone number to use to send an SMS
+/**
+ * SMSRequest type is defined to structure postSMSRequest function's parameter in Twilio class
+ * Structured to ensure proper inputs that are needed by the Twilio SMS API
+ */ 
+export type SMSRequest = {  
+  From: string; //the Twilio phone number to used to send an SMS
   To: string; //phone number to receive SMS
   Body: string; //SMS content
 }
 
-// SMS to/from object
+/**
+ * Incoming type is defined to structure the sendSMS function's parameter in Twilio class
+ * Structured to ensure proper inputs that represent from and to
+ */
 export type Incoming = {
-  From: string;
-  To: string;
+  From: string; //the Twilio phone number used to send an SMS
+  To: string; //phone number to receive SMS
 }
 
-// Email client configuration object
+/**
+ * ClientOptions type is defined to structure parameters required to instantiate
+ * an instance of DenoMailer. It accepts parameters required to setup a connection
+ * with a SMTP server of the developer's choice.
+ */ 
 export type ClientOptions = {
   connection: {
     hostname: string;
@@ -66,7 +76,12 @@ export type ClientOptions = {
   };
 }
 
-// OAuth Type configuration object
+/**
+ * OAuthParams type defines the parameters required across all OAuth providers
+ * and are used to instantiate an instance of the OAuth subclass base off the
+ * provider. Google has a defined alias due to optional parameters available to
+ * it which we are restricting from other OAuth providers
+ */
 export type OAuthParams = {
   provider: 'Github' | 'Facebook' | 'Twitter' | 'Linkedin' | 'Discord';
   client_id: string;

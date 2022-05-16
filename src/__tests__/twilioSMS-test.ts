@@ -1,6 +1,6 @@
-import {assert, assertEquals, assertInstanceOf, assertStringIncludes, assertExists, describe, it } from '../../src/deps.ts'
+import { assertEquals, assertInstanceOf, assertStringIncludes, assertExists, describe, it } from '../../src/deps.ts'
 import { Twilio } from '../../src/Strategies/MFA/twilio.ts'
-import {encode64} from '../../src/deps.ts'
+import { encode64 } from '../../src/deps.ts'
 
 describe('Testing creation of TwilioSMS class', () => {
   const testClass = new Twilio('testAccountSID', 'JDKSAJIWDJLIWJIQDJIDSADA4223DASD', 'testAuthToken');

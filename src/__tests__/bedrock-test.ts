@@ -1,5 +1,5 @@
 import { assertInstanceOf, Context, describe, it } from "../deps.ts";
-import { init } from "../bedrock.ts";
+import { init } from "../mod.ts";
 import { GithubOAuth, FacebookOAuth, GoogleOAuth, LinkedinOAuth, DiscordOAuth, TwitterOAuth, LocalAuth } from "../strategies.ts";
 
 /**

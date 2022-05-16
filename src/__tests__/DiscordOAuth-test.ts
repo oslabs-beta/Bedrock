@@ -1,5 +1,5 @@
 import { describe, assertEquals } from "../deps.ts";
-import { init } from "../bedrock.ts";
+import { init } from "../mod.ts";
 import { DiscordOAuth } from "../Strategies/OAuth/DiscordOAuth.ts";
 
 describe('DiscordOAuth\'s sendDirect function should create the correct URI to redirect client to Discord', () => {

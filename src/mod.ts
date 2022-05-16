@@ -1,20 +1,20 @@
-import {
-  DiscordOAuth,
-  FacebookOAuth,
-  GithubOAuth,
-  GoogleOAuth,
-  LinkedinOAuth,
-  LocalAuth,
-  TwitterOAuth,
-} from "./strategies.ts";
+import { DiscordOAuth, FacebookOAuth, GithubOAuth, GoogleOAuth, LinkedinOAuth, LocalAuth, TwitterOAuth } from "./strategies.ts";
 import { LocalAuthParams, OAuthParams } from "./types.ts";
 
 /**
- * @param params
- * @returns
+ * Strategy and StrategyParams type is 
  */
-export function init(params: OAuthParams | LocalAuthParams) {
-  let strategy: DiscordOAuth | FacebookOAuth | GithubOAuth | GoogleOAuth | LinkedinOAuth | LocalAuth | TwitterOAuth;
+type Strategy = DiscordOAuth | FacebookOAuth | GithubOAuth | GoogleOAuth | LinkedinOAuth | LocalAuth | TwitterOAuth;
+type StrategyParams = LocalAuthParams | OAuthParams;
+
+/**
+ * Bedrock's init function accepts a Params object and instantiates the appropriate class
+ * based off the provider defined within the Params object
+ * @param OAuthParams or LocalAuthParams
+ * @returns Strategy
+ */
+export function init(params: StrategyParams) {
+  let strategy: Strategy;
 
   switch (params.provider) {
     case "Local":
@@ -44,6 +44,7 @@ export function init(params: OAuthParams | LocalAuthParams) {
       );
   }
 
+  // will provide developer a log that will inform which strategy has been initialized
   console.info(`Successfully initialized ${params.provider} strategy!`);
   return strategy;
 }

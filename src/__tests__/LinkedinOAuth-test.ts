@@ -1,5 +1,5 @@
 import { describe, assertEquals } from "../deps.ts";
-import { init } from "../bedrock.ts";
+import { init } from "../mod.ts";
 import { LinkedinOAuth } from "../Strategies/OAuth/LinkedinOAuth.ts";
 
 describe('LinkedinOAuth\'s sendDirect function should create the correct URI to redirect client to Linkedin', () => {

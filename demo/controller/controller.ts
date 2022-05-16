@@ -1,7 +1,7 @@
-import { isHttpError, Context } from "../../src/deps.ts";
 import { Users } from '../server/model.ts';
 import { generateTOTPSecret} from '../../src/Strategies/MFA/totp.ts';
 import { RouterMiddleware } from '../../src/types.ts'
+import { Router, Application, helpers, Context, isHttpError } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 
 const dbController: Controller = { 
   // create User
@@ -43,7 +43,7 @@ const dbController: Controller = {
       }
     }
     catch (err) {      
-      if (isHttpError(err)){
+      if (isHttpError(err)){ß
         ctx.response.status = err.status;
       } else {
         ctx.response.status = 500;

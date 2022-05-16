@@ -1,6 +1,6 @@
-import { Context, helpers, Router } from "../../src/deps.ts";
+import { Router, Application, helpers, Context, isHttpError } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 import dbController from "../controller/controller.ts";
-import { init } from "../../src/bedrock.ts";
+import { init } from "../../src/mod.ts";
 import {
   ClientOptions,
   LocalAuthParams,

@@ -1,5 +1,5 @@
-import { ClientOptions, Incoming, LocalAuthParams, SendConfig } from "../../types.ts";
-import { Context, decode64, SMTPClient } from "../../deps.ts";
+import { ClientOptions, Incoming, LocalAuthParams } from "../../types.ts";
+import { Context, decode64, SMTPClient, SendConfig } from "../../deps.ts";
 import { generateTOTP } from "./totp.ts";
 import { Twilio } from "./twilio.ts";
 import { Auth } from "../Auth.ts";
@@ -147,6 +147,7 @@ export class LocalAuth extends Auth {
         From: "+17164543649", //need to use env or pass into class initialization for developer to add phone number
         To: await this.getNumber!(await ctx.state.session.get("username"))!,
       };
+      // await sms.sendSms(context);
       await sms.sendSms(context);
     } else if (this.mfa_type === "Email") {
       // Generate TOTP code
