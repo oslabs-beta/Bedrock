@@ -2,22 +2,32 @@
 
 A fully modular authentication library for Deno that intends to be the * *Bedrock* * of your application's authentication/session control. Bedrock provides authentication (Local + MFA, OAuth), and session handling middleware as well as conditional access controls to restrict access to your routes as defined by your application's requirements.
 
-# Authors
+Check our website [here](https://bedrockauth.dev) for additional information and documentation!
+
+## Authors
 
 - Eric Hagen: [Github](https://github.com/ejhagen) | [LinkedIn](https://www.linkedin.com/in/hagenforhire)
 - Anthony Valdez: [Github](https://github.com/va1dez) | [LinkedIn](https://www.linkedin.com/in/va1dez)
 - Julian Kang: [Github](https://github.com/julianswkang) | [LinkedIn](https://www.linkedin.com/in/julianswkang)
 - John Howell: [Github](https://github.com/Tak149) | [LinkedIn](https://www.linkedin.com/in/jdh3/)
 
-# Features
+## Features
 
 Bedrock provides various authentication strategies for the developer to build out a secure application with minimal developmental effort by abstracting the authentication and session management process while giving the developer full control of which parts they want to use.
 
-# v1.0.1
+## Implementation
+
+### Importing Bedrock
+
+```typescript
+import { init } from ...
+```
+
+## v1.0.1
 - Added additional Local Authentication MFA option of e-mail (via [deno-mailer](https://deno.land/x/denomailer@1.0.1))
 - Added additional OAuth strategies, including Discord, Facebook, LinkedIn, and Twitter
 
-# v1.0.0
+## v1.0.0
 
 Initial release supporting the following authentication strategies:
 - Local Authentication, with optional MFA options
