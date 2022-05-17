@@ -14,6 +14,7 @@ describe("Testing creation of TwilioSMS class", () => {
   })
 
   it('Testing to see if encoded portion of authorization header is correctly in Base64', () => {
+    // testAccountSID:testAuthToken
     const encoded = encode64('testAccountSID:testAuthToken')
     const Base64RegEx = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/
     
