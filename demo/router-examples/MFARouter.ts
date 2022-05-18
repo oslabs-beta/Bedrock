@@ -1,14 +1,11 @@
 import { init } from '../../src/mod.ts';
-
-
-
 import { Router, Context } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 import dbController from '../controller/controller.ts';
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
 
 export const MFARouter = new Router();    
 
-// Initializing the Bedrock library with the above parameters
+// Initializing the Bedrock library
 const Bedrock = init({
   provider: 'Local',
   mfa_type: 'Token',

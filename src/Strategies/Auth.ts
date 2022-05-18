@@ -1,7 +1,7 @@
 import { Context } from "../../src/deps.ts";
 import { LocalAuth } from "./MFA/LocalAuth.ts";
 
-export class Auth {
+export abstract class Auth {
   /**
    * 
    * @param ctx 
@@ -26,7 +26,7 @@ export class Auth {
    * @param next 
    */
   readonly signOut = async (ctx: Context, next: () => Promise<unknown>) => {
-    await ctx.state.session.deleteSession(ctx);
+    await ctx.state.session.deleteSession();
     next();
   };
 }

@@ -19,20 +19,24 @@ export class TwitterOAuth extends OAuth{
    * @param ctx 
    * @returns 
    */
-  sendRedirect = async (ctx: Context): Promise<void> => {
+  sendRedirect = async (ctx: Context, next: () => Promise<unknown>): Promise<void> => {
     let uri = this.uriBuilder();
 
-    ctx.state.session.set('state', this.randomStringGenerator(20));
-    ctx.state.session.set('code_challenge', this.randomStringGenerator(128))
+    const state = this.randomStringGenerator(20);
+    const code_challenge = this.randomStringGenerator(128);
 
-    const challengeArr = new TextEncoder().encode(await ctx.state.session.get('code_challenge'));
+    await ctx.state.session.flash('state', state);
+    await ctx.state.session.flash('code_challenge', code_challenge);
+
+    const challengeArr = new TextEncoder().encode(code_challenge);
     const encoded = encode64url(
       await crypto.subtle.digest("SHA-256", challengeArr),
     );
     
-    uri += `&state=${await ctx.state.session.get('state')}&code_challenge=${encoded}&code_challenge_method=S256`;
+    uri += `&state=${state}&code_challenge=${encoded}&code_challenge_method=S256`;
 
     ctx.response.redirect(uri);
+    await next();
     return;
   };
   
@@ -47,9 +51,11 @@ export class TwitterOAuth extends OAuth{
       const params = helpers.getQuery(ctx, { mergeParams: true });
       const { code, state } = params;
 
+      const sessionState = await ctx.state.session.get('state');
+      
       if (params.error) throw new Error('User did not authorize app');
 
-      if (state !== await ctx.state.session.get('state')) {
+      if (state !== sessionState) {
         throw new Error('State validation on incoming response failed');
       }
 
@@ -80,19 +86,19 @@ export class TwitterOAuth extends OAuth{
         throw new Error('Unsuccessful authentication response')
       }
 
-      ctx.state.session.set("accessToken", token.access_token);
-      ctx.state.session.set("isLoggedIn", true);
+      await ctx.state.session.set("accessToken", token.access_token);
+      await ctx.state.session.set("isLoggedIn", true);
 
       ctx.state.OAuthVerified = true;
       ctx.state.token = token;
     } 
     catch(err){
-      ctx.state.session.set("isLoggedIn", false);
+      await ctx.state.session.set("isLoggedIn", false);
       ctx.state.OAuthVerified = false;
 
       console.log('There was a problem logging in with Twitter: ', err);
     }
-    return next();
+    await next();
   };
 
 }

@@ -14,9 +14,12 @@ export class GithubOAuth extends OAuth {
    **/
   sendRedirect = async (ctx: Context): Promise<void> => {
     let uri = this.uriBuilder();
-    ctx.state.session.set("state", this.randomStringGenerator(20));
 
-    uri += `&state=${await ctx.state.session.get('state')}`;
+    const state = this.randomStringGenerator(20);
+
+    await ctx.state.session.flash("state", state);
+
+    uri += `&state=${state}`;
     
     ctx.response.redirect(uri);
     return;
@@ -60,8 +63,8 @@ export class GithubOAuth extends OAuth {
       }
       
       // Bedrock session management variable assignment
-      ctx.state.session.set("accessToken", token.access_token);
-      ctx.state.session.set("isLoggedIn", true);
+      await ctx.state.session.set("accessToken", token.access_token);
+      await ctx.state.session.set("isLoggedIn", true);
 
       /**
        * State properties that expire at end of response cycle
@@ -72,12 +75,12 @@ export class GithubOAuth extends OAuth {
       ctx.state.token = token;
     } 
     catch(err) {
-      ctx.state.session.set("isLoggedIn", false);
+      await ctx.state.session.set("isLoggedIn", false);
       ctx.state.OAuthVerified = false;
 
       console.log('There was a problem logging in with Github: ', err)
     }
 
-    return next();
+    await next();
   };
 }

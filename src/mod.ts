@@ -1,4 +1,4 @@
-import { DiscordOAuth, FacebookOAuth, GithubOAuth, GoogleOAuth, LinkedinOAuth, LocalAuth, TwitterOAuth } from "./strategies.ts";
+import { DiscordOAuth, FacebookOAuth, GithubOAuth, GoogleOAuth, LinkedinOAuth, LocalAuth, TwitterOAuth, Auth, OAuth } from "./strategies.ts";
 import { LocalAuthParams, OAuthParams } from "./types.ts";
 
 /**
@@ -13,12 +13,16 @@ type StrategyParams = LocalAuthParams | OAuthParams;
  * @param OAuthParams or LocalAuthParams
  * @returns Strategy
  */
-export function init(params: StrategyParams) {
+
+export function init(params: LocalAuthParams): LocalAuth;
+export function init(params: OAuthParams): OAuth;
+
+export function init(params: StrategyParams): LocalAuth | OAuth {
   let strategy: Strategy;
 
   switch (params.provider) {
     case "Local":
-      strategy = new LocalAuth(params);      
+      strategy = new LocalAuth(params);
       break;
     case "Discord":
       strategy = new DiscordOAuth(params);

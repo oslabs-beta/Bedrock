@@ -1,7 +1,7 @@
 import { OAuthParams } from "../../types.ts";
 import { Auth } from "../Auth.ts";
 
-export class OAuth extends Auth{
+export abstract class OAuth extends Auth{
   /**
    * Universal OAuth properties and constructor method
    */

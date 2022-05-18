@@ -1,4 +1,4 @@
-import { Router, Application, helpers, Context, isHttpError } from "https://deno.land/x/oak@v10.5.1/mod.ts";
+import { Router, helpers, Context } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 import dbController from "../controller/controller.ts";
 import { init } from "../../src/mod.ts";
 import {
@@ -7,7 +7,6 @@ import {
   OAuthParams,
 } from "../../src/types.ts";
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
-import { GithubOAuth } from "../../src/Strategies/OAuth/GithubOAuth.ts";
 
 export const MFARouter = new Router();
 
@@ -89,13 +88,13 @@ const TwitterParams: OAuthParams = {
   scope: "tweet.read users.read follows.read follows.write",
 };
 
-const Bedrock: any = init(params);
-const BedrockGithub: any = init(GithubParams);
-const BedrockGoogle: any = init(GParams);
-const BedrockLinkedin: any = init(LinkedinParams);
-const BedrockDiscord: any = init(DiscordParams);
-const BedrockFacebook: any = init(FacebookParams);
-const BedrockTwitter: any = init(TwitterParams);
+const Bedrock = init(params);
+const BedrockGithub = init(GithubParams);
+const BedrockGoogle = init(GParams);
+const BedrockLinkedin = init(LinkedinParams);
+const BedrockDiscord = init(DiscordParams);
+const BedrockFacebook = init(FacebookParams);
+const BedrockTwitter = init(TwitterParams);
 
 MFARouter.get("/", async (ctx: Context) => {
   await ctx.send({
@@ -220,10 +219,18 @@ MFARouter.get(
   "/secret.html",
   BedrockDiscord.verifyAuth,
   async (ctx: Context) => {
-    await ctx.send({
-      root: `${Deno.cwd()}/demo/client`,
-      path: `secret.html`,
-    });
+    if (ctx.state.authSuccess) {
+      await ctx.send({
+        root: `${Deno.cwd()}/demo/client`,
+        path: `secret.html`,
+      });
+    } else {
+      await ctx.send({
+        root: `${Deno.cwd()}/demo/client`,
+        path: `blocked.html`,
+      });
+    }
+    
     return;
   },
 );
