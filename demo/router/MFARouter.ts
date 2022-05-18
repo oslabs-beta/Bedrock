@@ -33,7 +33,6 @@ const params: LocalAuthParams = {
     const { username, password } = bodyValue;
     return [username, password];
   },
-  noSecret: '/getSecret',
   // getEmail: dbController.getEmail,
   // clientOptions: clientOptions,
   // fromAddress: Deno.env.get("EMAIL_FROM")!,
