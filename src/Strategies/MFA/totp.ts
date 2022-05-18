@@ -101,8 +101,7 @@ export async function generateTOTP(secret:string, numTimeSteps?: number): Promis
     // Returns an error string if secret is not Base32
     const regex = /^([A-Z2-7=]{8})+$/
     if (!regex.test(secret)) {
-      console.log('Error: not Base32');
-      return new Promise(() => 'ERROR');
+      throw new Error('Not a base32 secret');
     }
 
     // Decode the secret from base32 to a binary Uint8Array to prepare for HMAC-SHA1

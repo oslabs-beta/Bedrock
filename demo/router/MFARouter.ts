@@ -25,14 +25,15 @@ const clientOptions: ClientOptions = {
 const params: LocalAuthParams = {
   provider: "Local",
   checkCreds: dbController.checkCreds,
-  // mfa_type: "SMS",
-  // getSecret: dbController.getSecret,
+  mfa_type: "Token",
+  getSecret: dbController.getSecret,
   readCreds: async (ctx: Context): Promise<string[]> => {
     const body = await ctx.request.body();
     const bodyValue = await body.value;
     const { username, password } = bodyValue;
     return [username, password];
   },
+  noSecret: '/getSecret',
   // getEmail: dbController.getEmail,
   // clientOptions: clientOptions,
   // fromAddress: Deno.env.get("EMAIL_FROM")!,
@@ -106,13 +107,25 @@ MFARouter.get("/", async (ctx: Context) => {
 });
 
 MFARouter.post("/login", Bedrock.localLogin, (ctx: Context) => {
+
   if (ctx.state.localVerified) {
-    ctx.response.body = {
-      successful: true,
-      mfa_required: ctx.state.mfaRequired,
-    };
-    ctx.response.status = 200;
+    // Authenticated locally
+    if (ctx.state.hasSecret === false) {
+      // No MFA secret attached to account
+      ctx.response.body = {
+        successful: false,
+        log: 'No secret',
+      }
+    } else {
+      // MFA secret found
+      ctx.response.body = {
+        successful: true,
+        mfa_required: ctx.state.mfaRequired,
+      };
+      ctx.response.status = 200;
+    }
   } else {
+    // Local authentication failed
     ctx.response.body = {
       successful: false,
     };
@@ -120,6 +133,12 @@ MFARouter.post("/login", Bedrock.localLogin, (ctx: Context) => {
   }
   return;
 });
+
+MFARouter.get("/getSecret", (ctx: Context) => {
+  ctx.response.body = "You do not have a secret";
+  ctx.response.status = 200;
+  return;
+})
 
 MFARouter.post("/verifyMFA", Bedrock.checkMFA, (ctx: Context) => {
   ctx.response.body = {

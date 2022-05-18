@@ -1,4 +1,4 @@
-import { Application } from "../../src/deps.ts";
+import { Application } from "https://deno.land/x/oak/mod.ts";
 import { MFARouter } from '../router/MFARouter.ts';
 import { Session } from "../../src/deps.ts";
 

@@ -1,57 +1,55 @@
 import { Users } from '../server/model.ts';
-import { generateTOTPSecret} from '../../src/Strategies/MFA/totp.ts';
-import { RouterMiddleware } from '../../src/types.ts'
 import { Router, Application, helpers, Context, isHttpError } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 
 const dbController: Controller = { 
   // create User
-  addUser: async (ctx: Context, next: any) => {
-    //check if username exists in db already
-    const body = await ctx.request.body();
-    const bodyValue = await body.value;
-    const {username, password, email, phone} = bodyValue;
-    try {
-      const foundUser: resObject | any = await Users.findOne({username})
-      const found = await foundUser;
-      if (found) {        
-        ctx.response.body = {message: 'A user by this name already exists'};
-        throw new Error;
-      }
-      else{        
-        const secret = await generateTOTPSecret();
-        const user = {
-          username: username,
-          password: password,
-          phone: phone,
-          email: email,
-          secret: secret,
-        }
-        try {          
-          const addedUser: resObject | any = await Users.insertOne(user);
-          ctx.response.body = await addedUser;          
-          return next();
-        } 
-        catch (err) {          
-          if (isHttpError(err)){
-            ctx.response.status = err.status;
-          } else {
-            ctx.response.status = 500;
-          }
-          ctx.response.body = {error: err.message}
-          ctx.response.type = "json";
-        }
-      }
-    }
-    catch (err) {      
-      if (isHttpError(err)){ß
-        ctx.response.status = err.status;
-      } else {
-        ctx.response.status = 500;
-      }
-      ctx.response.body = {error: err.message}
-      ctx.response.type = "json";
-    }
-  },
+  // addUser: async (ctx: Context, next: any) => {
+  //   //check if username exists in db already
+  //   const body = await ctx.request.body();
+  //   const bodyValue = await body.value;
+  //   const {username, password, email, phone} = bodyValue;
+  //   try {
+  //     const foundUser: resObject | any = await Users.findOne({username})
+  //     const found = await foundUser;
+  //     if (found) {        
+  //       ctx.response.body = {message: 'A user by this name already exists'};
+  //       throw new Error;
+  //     }
+  //     else{        
+  //       // const secret = await generateTOTPSecret();
+  //       const user = {
+  //         username: username,
+  //         password: password,
+  //         phone: phone,
+  //         email: email,
+  //         secret: secret,
+  //       }
+  //       try {          
+  //         const addedUser: resObject | any = await Users.insertOne(user);
+  //         ctx.response.body = await addedUser;          
+  //         return next();
+  //       } 
+  //       catch (err) {          
+  //         if (isHttpError(err)){
+  //           ctx.response.status = err.status;
+  //         } else {
+  //           ctx.response.status = 500;
+  //         }
+  //         ctx.response.body = {error: err.message}
+  //         ctx.response.type = "json";
+  //       }
+  //     }
+  //   }
+  //   catch (err) {      
+  //     if (isHttpError(err)){ß
+  //       ctx.response.status = err.status;
+  //     } else {
+  //       ctx.response.status = 500;
+  //     }
+  //     ctx.response.body = {error: err.message}
+  //     ctx.response.type = "json";
+  //   }
+  // },
 
   verifyUser: async (ctx: Context, next: any) => {
     const body = await ctx.request.body();
@@ -103,15 +101,15 @@ const dbController: Controller = {
     }
   },
 
-  getSecret: async (username: string): Promise<string> => {
+  getSecret: async (username: string): Promise<string | null> => {
     try {
       const foundUser = await Users.findOne({username});
       const found = await foundUser;
 
-      if (found) {
+      if (found && found.secret) {
         return found.secret;
       } else {
-        return 'No Secret';
+        return null;
       }
     } catch {
       throw Error('Error accessing the database');
@@ -149,10 +147,10 @@ const dbController: Controller = {
 }
 
 export type Controller = {
-  addUser: RouterMiddleware<string>;
-  verifyUser: RouterMiddleware<string>;
+  // addUser: (ctx: Context, next: any) => Promise<string>;
+  verifyUser: (ctx: Context, next: any) => Promise<string>;
   checkCreds: (username: string, password: string) => Promise<boolean>;
-  getSecret: (username: string) => Promise<string>;
+  getSecret: (username: string) => Promise<string | null>;
   getNumber: (username: string) => Promise<string>;
   getEmail: (username: string) => Promise<string>;
 }
