@@ -20,7 +20,6 @@ export class LocalAuth extends Auth {
   clientOptions?: ClientOptions;
   getEmail?: (username: string) => Promise<string>;
   fromAddress?: string;
-  noSecret?: string;
 
   constructor(stratParams: LocalAuthParams) {
     super();
