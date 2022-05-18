@@ -147,15 +147,3 @@ export async function generateTOTP(secret:string, numTimeSteps?: number): Promis
 
   return result;
 }
-
-// Pseudorandom TOTP secret generator
-export function generateTOTPSecret(): string {
-  const randString: Array<string> = new Array(32);
-  const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-
-  for (let i = 0; i < randString.length; i++) {
-    randString[i] = base32Chars[Math.floor(Math.random() * 32)];
-  }
-
-  return randString.join('');
-}

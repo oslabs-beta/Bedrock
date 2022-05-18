@@ -10,15 +10,17 @@ import { Auth } from "../Auth.ts";
  */
 export class LocalAuth extends Auth {
   checkCreds: (username: string, password: string) => Promise<boolean>;
-  getSecret?: (username: string) => Promise<string>;
+  getSecret?: (username: string) => Promise<string | null>;
   readCreds?: (ctx: Context) => Promise<string[]>;
   mfa_type?: string;
   accountSID?: string;
   authToken?: string;
   getNumber?: (username: string) => Promise<string>;
+  sourceNumber?: string;
   clientOptions?: ClientOptions;
   getEmail?: (username: string) => Promise<string>;
   fromAddress?: string;
+  noSecret?: string;
 
   constructor(stratParams: LocalAuthParams) {
     super();
@@ -65,7 +67,7 @@ export class LocalAuth extends Auth {
       await ctx.state.session.set("isLoggedIn", true);
       ctx.state.localVerified = true;
       ctx.state.mfaRequired = this.mfa_type !== undefined;
-
+      
       this.sendMFA(ctx);
     } else {
       await ctx.state.session.set("isLoggedIn", false);
@@ -107,7 +109,8 @@ export class LocalAuth extends Auth {
     const mfaSecret = await this.getSecret!(
       await ctx.state.session.get("username"),
     );
-    const currentTOTP = await generateTOTP(mfaSecret);
+
+    const currentTOTP = await generateTOTP(mfaSecret!);
 
     const verified = currentTOTP.some((totp) => {
       return totp === bodyValue.code;
@@ -141,10 +144,15 @@ export class LocalAuth extends Auth {
       await ctx.state.session.get("username"),
     );
 
+    if (secret === null) {
+      ctx.response.redirect(this.noSecret!);
+      return;
+    }
+
     if (this.mfa_type === "SMS") {
       const sms = new Twilio(this.accountSID!, secret, this.authToken!);
       const context: Incoming = {
-        From: "+17164543649", //need to use env or pass into class initialization for developer to add phone number
+        From: this.sourceNumber!, //need to use env or pass into class initialization for developer to add phone number
         To: await this.getNumber!(await ctx.state.session.get("username"))!,
       };
       // await sms.sendSms(context);
@@ -160,10 +168,11 @@ export class LocalAuth extends Auth {
       const subjectText: string = "Your MFA code is " + code[1];
       const contentText: string = subjectText;
       const htmlText: string = "<p>Your MFA code is " + code[1] + ".</p>";
+      const userEmail = await this.getEmail!(await ctx.state.session.get('username'));
 
       const newEmail: SendConfig = {
         from: this.fromAddress!,
-        to: "bedrock.deno@gmail.com", //need to use env or pass into class intialization
+        to: userEmail, //need to use env or pass into class intialization
         subject: subjectText,
         content: contentText,
         html: htmlText,
@@ -174,4 +183,15 @@ export class LocalAuth extends Auth {
       await client.close();
     }
   };
+
+  static readonly generateTOTPSecret = (): string => {
+    const randString: Array<string> = new Array(32);
+    const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  
+    for (let i = 0; i < randString.length; i++) {
+      randString[i] = base32Chars[Math.floor(Math.random() * 32)];
+    }
+  
+    return randString.join('');
+  }
 }
