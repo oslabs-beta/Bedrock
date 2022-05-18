@@ -2,7 +2,7 @@
 
 <!-- ![Bedrock](https://socialify.git.ci/oslabs-beta/Bedrock/image?description=1&descriptionEditable=An%20intuitive%20authentication%20library%20for%20Deno.&font=Inter&issues=1&language=1&name=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Dark) -->
 
-<img src="https://socialify.git.ci/oslabs-beta/Bedrock/image?description=1&descriptionEditable=An%20intuitive%20authentication%20library%20for%20Deno.&font=Inter&issues=1&language=1&name=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Dark" alt="drawing" width="1000"/>
+<p align="center"><img src="https://socialify.git.ci/oslabs-beta/Bedrock/image?description=1&descriptionEditable=An%20intuitive%20authentication%20library%20for%20Deno.&font=Inter&issues=1&language=1&name=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Dark" alt="drawing" width="700"/></p>
 
 A fully modular authentication library for Deno that intends to be the * *Bedrock* * of your application's authentication/session control. Bedrock provides authentication (Local + MFA, OAuth), and session handling middleware as well as conditional access controls to restrict access to your routes as defined by your application's requirements.
 
