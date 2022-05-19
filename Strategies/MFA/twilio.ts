@@ -26,7 +26,6 @@ export class Twilio {
    */
   private async postSMSRequest(payload: SMSRequest): Promise<string> {
     //perform HTTP post request to the https://api.twilio.com/2010-04-01/Accounts/YOUR_ACC_SID/Messages.json URI to place the send SMS request
-    console.log('this is the authorization header: ', this.authorizationHeader);
  
     const data = await fetch(
       'https://api.twilio.com/2010-04-01/Accounts/' + this.accountSID + '/Messages.json',

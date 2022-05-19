@@ -11,7 +11,7 @@ export class LocalAuth extends Auth {
   checkCreds: (username: string, password: string) => Promise<boolean>;
   getSecret?: (username: string) => Promise<string | null>;
   readCreds?: (ctx: Context) => Promise<string[]>;
-  mfa_type?: string;
+  mfaType?: string;
   accountSID?: string;
   authToken?: string;
   getNumber?: (username: string) => Promise<string>;
@@ -66,7 +66,7 @@ export class LocalAuth extends Auth {
       await this.sendMFA(ctx);
 
       ctx.state.localVerified = true;
-      ctx.state.mfaRequired = this.mfa_type !== undefined;
+      ctx.state.mfaRequired = this.mfaType !== undefined;
     } else {
       await ctx.state.session.set("isLoggedIn", false);
       ctx.state.localVerified = false;
@@ -113,8 +113,8 @@ export class LocalAuth extends Auth {
   /**
    * @param context object
    * Invoking sendMFA will send a 6 digit code via one of two methods: SMS or e-mail
-   * Will check to see which mfa_type is initialized
-   * If mfa_type is SMS, will instantiate an object from the Twilio class with the accountSID and authtoken provided from Twilio
+   * Will check to see which mfaType is initialized
+   * If mfaType is SMS, will instantiate an object from the Twilio class with the accountSID and authtoken provided from Twilio
    *  Will then invoke the Twilio method's sendSMS function while passing in an object that designates
       the 'From' phone number (developer's designated Twilio phone number) and 'To' phone number (client/user's phone number)
    */
@@ -125,7 +125,7 @@ export class LocalAuth extends Auth {
 
     ctx.state.hasSecret = (secret === null) ? false : true;
 
-    if (this.mfa_type === "SMS" && secret) {
+    if (this.mfaType === "SMS" && secret) {
       const sms = new Twilio(this.accountSID!, secret, this.authToken!);
       const context: Incoming = {
         From: this.sourceNumber!,
@@ -133,7 +133,7 @@ export class LocalAuth extends Auth {
       };
 
       await sms.sendSms(context);
-    } else if (this.mfa_type === "Email" && secret) {
+    } else if (this.mfaType === "Email" && secret) {
       // Generate TOTP code
       const code = await generateTOTP(secret);
 

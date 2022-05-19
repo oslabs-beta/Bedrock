@@ -16,7 +16,7 @@ export abstract class Auth {
    */
   readonly verifyAuth = async (ctx: Context, next: () => Promise<unknown>) => {
     if (await ctx.state.session.has("isLoggedIn") && await ctx.state.session.get("isLoggedIn")) {
-      if ( !(this instanceof LocalAuth) || this instanceof LocalAuth && (this.mfa_type === undefined || await ctx.state.session.get('mfa_success'))){
+      if ( !(this instanceof LocalAuth) || this instanceof LocalAuth && (this.mfaType === undefined || await ctx.state.session.get('mfa_success'))){
         ctx.state.authSuccess = true;
       }
     } else {

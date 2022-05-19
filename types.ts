@@ -12,13 +12,13 @@ import { Context } from "./deps.ts";
  */
 export type LocalAuthParams = {
   provider: "Local";
-  mfa_type: "Token";
+  mfaType: "Token";
   checkCreds: (username: string, password: string) => Promise<boolean>;
   getSecret: (username: string) => Promise<string | null>;
   readCreds?: (ctx: Context) => Promise<string[]>;
 } | {
   provider: "Local";
-  mfa_type: "SMS";
+  mfaType: "SMS";
   checkCreds: (username: string, password: string) => Promise<boolean>;
   getSecret: (username: string) => Promise<string | null>;
   getNumber: (username: string) => Promise<string>;
@@ -32,7 +32,7 @@ export type LocalAuthParams = {
   readCreds?: (ctx: Context) => Promise<string[]>;
 } | {
   provider: "Local";
-  mfa_type: "Email";
+  mfaType: "Email";
   checkCreds: (username: string, password: string) => Promise<boolean>;
   getSecret: (username: string) => Promise<string | null>;
   clientOptions: ClientOptions;
