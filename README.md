@@ -157,6 +157,9 @@ OAuthRouter.get('/signout', Bedrock.signOut, (ctx: Context) => {
 - Julian Kang: [Github](https://github.com/julianswkang) | [LinkedIn](https://www.linkedin.com/in/julianswkang)
 - John Howell: [Github](https://github.com/Tak149) | [LinkedIn](https://www.linkedin.com/in/jdh3/)
 
+## v1.0.2
+- Removed debugging information from Twilio class
+
 ## v1.0.1
 - Added additional Local Authentication MFA option of e-mail (via [deno-mailer](https://deno.land/x/denomailer@1.0.1))
 - Added additional OAuth strategies, including Discord, Facebook, LinkedIn, and Twitter
