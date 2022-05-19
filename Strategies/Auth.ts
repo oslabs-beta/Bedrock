@@ -1,4 +1,4 @@
-import { Context } from "../../src/deps.ts";
+import { Context } from "../deps.ts";
 import { LocalAuth } from "./MFA/LocalAuth.ts";
 
 export abstract class Auth {
