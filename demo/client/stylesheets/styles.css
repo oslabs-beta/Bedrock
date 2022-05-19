@@ -1,0 +1,86 @@
+body {
+	border: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	color: #cccccc;
+	background-color: #000000;
+	height: 100vh;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.header-container {
+	display: flex;
+	background-color: #333333;
+	flex: 0 0 80px;
+	width: 100vw;
+}
+
+.header-container a {
+	text-decoration: none;
+	color: white;
+	margin-left: 3em;
+}
+
+.header-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	max-width: 1200px;
+	margin-left: auto;
+	margin-right: auto;
+	flex: 1;
+}
+
+.body-container {
+	display: flex;
+	flex: 1 1 auto;
+	justify-content: center;
+}
+
+.body-wrapper {
+	display: flex;
+	max-width: 1200px;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	flex: 1;
+	height: auto;
+	flex-direction: column;
+	font-size: 3em;
+}
+
+.login-wrapper {
+	padding: 1em;
+	border: 2px white solid;
+	border-radius: 25px;
+	background-color: #666666;
+}
+
+#oauth {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.login-fields {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	height: 3em;
+	gap: 10px;
+}
+
+.login-fields input {
+	border-radius: 5px;
+	padding: 5px;
+	border: none;
+}
+
+.login-fields button {
+	height: 2.5em;
+	background-color: #CCCCCC;
+	color: black;
+	border-radius: 10px;
+	border: none;
+}
