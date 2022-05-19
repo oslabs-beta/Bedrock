@@ -84,7 +84,7 @@ export class LocalAuth extends Auth {
    * Checks to see if the input code from client matches the generated TOTP
    *  Note: the developer will need to ensure that the client's MFA input is passed into the
       context.request body as the property, 'code'
-   * If verified, will initialize session 'mfa_success' and add mfaVerified property on ctx.state as set to true. Else, will initialize to false
+   * If verified, will initialize session 'mfaSuccess' and add mfaVerified property on ctx.state as set to true. Else, will initialize to false
       The developer can use ctx.state.mfaVerified to determine if client's mfa check was successful or not
    */
   readonly checkMFA = async (ctx: Context, next: () => Promise<unknown>) => {
@@ -101,11 +101,11 @@ export class LocalAuth extends Auth {
     });
 
     if (verified) {
-      await ctx.state.session.set("mfa_success", true);
+      await ctx.state.session.set("mfaSuccess", true);
       ctx.state.mfaVerified = true;
       return next();
     } else {
-      await ctx.state.session.set("mfa_success", false);
+      await ctx.state.session.set("mfaSuccess", false);
       ctx.state.mfaVerified = false;
       return next();
     }

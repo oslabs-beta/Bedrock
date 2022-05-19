@@ -7,16 +7,16 @@ export abstract class Auth {
    * @param next - Invokes next function in the Middleware chain
    * Note: verifyAuth is an OPTIONAL authorization verifying middleware function for the developer to utilize
        This may be deferred, as developer may utilize different means of verifying authorization prior to allowing client access to sensitive material
-   * verifyAuth checks the isLoggedIn and mfa_success session properties previously set by checkMFA
+   * verifyAuth checks the isLoggedIn and mfaSuccess session properties previously set by checkMFA
    * Will ensure that isLoggedIn is true
-      Then will check to see if mfa_enabled is true -- if so, will ensure previous mfaCheck set property mfa_success to true
-        If mfa_success is true, will then allow progression
-   *  Otherwise, if mfa_enabled is false, will also allow progression since mfa_success check is not warranted
+      Then will check to see if mfa_enabled is true -- if so, will ensure previous mfaCheck set property mfaSuccess to true
+        If mfaSuccess is true, will then allow progression
+   *  Otherwise, if mfa_enabled is false, will also allow progression since mfaSuccess check is not warranted
    * If isLoggedIn is false, will return message stating client is "Not currently signed in"
    */
   readonly verifyAuth = async (ctx: Context, next: () => Promise<unknown>) => {
     if (await ctx.state.session.has("isLoggedIn") && await ctx.state.session.get("isLoggedIn")) {
-      if ( !(this instanceof LocalAuth) || this instanceof LocalAuth && (this.mfaType === undefined || await ctx.state.session.get('mfa_success') === true)){
+      if ( !(this instanceof LocalAuth) || this instanceof LocalAuth && (this.mfaType === undefined || await ctx.state.session.get('mfaSuccess') === true)){
         ctx.state.authSuccess = true;
       }
     } else {
