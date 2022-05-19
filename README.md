@@ -157,6 +157,10 @@ OAuthRouter.get('/signout', Bedrock.signOut, (ctx: Context) => {
 - Julian Kang: [Github](https://github.com/julianswkang) | [LinkedIn](https://www.linkedin.com/in/julianswkang)
 - John Howell: [Github](https://github.com/Tak149) | [LinkedIn](https://www.linkedin.com/in/jdh3/)
 
+## v1.0.3
+- Revision on auth logic for MFA
+- Updated additional variables to maintain camelCase consistency
+
 ## v1.0.2
 - Removed debugging information from Twilio class
 - Changed mfa_type to mfaType to maintain camelCase consistency
