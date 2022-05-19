@@ -15,10 +15,10 @@ export class TwitterOAuth extends OAuth{
   }
   
   /**
-   * 
-   * @param ctx 
-   * @returns 
-   */
+   * Appends necessary client info onto uri string and redirects to generated link. Utilizes PKCE SHA256 to secure response
+   * and prevent malicious applications on device to steal access token
+   * @param ctx - Context object passed in via the Middleware chain  
+   **/
   sendRedirect = async (ctx: Context, next: () => Promise<unknown>): Promise<void> => {
     let uri = this.uriBuilder();
 
@@ -41,11 +41,11 @@ export class TwitterOAuth extends OAuth{
   };
   
   /**
-   * 
-   * @param ctx 
-   * @param next 
-   * @returns 
-   */
+   * Functionality to generate post request to Twitter server to obtain access token. Utilizes PKCE SHA256 to secure response
+   * and prevent malicious applications on device to steal access token
+   * @param ctx - Context object passed in via the Middleware chain 
+   * @param next - Invokes next function in the Middleware chain
+   **/
   getToken = async (ctx: Context, next: () => Promise<unknown>) => {
     try {
       const params = helpers.getQuery(ctx, { mergeParams: true });

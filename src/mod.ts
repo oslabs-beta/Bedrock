@@ -1,4 +1,4 @@
-import { DiscordOAuth, FacebookOAuth, GithubOAuth, GoogleOAuth, LinkedinOAuth, LocalAuth, TwitterOAuth, Auth, OAuth } from "./strategies.ts";
+import { DiscordOAuth, FacebookOAuth, GithubOAuth, GoogleOAuth, LinkedinOAuth, LocalAuth, TwitterOAuth, OAuth } from "./strategies.ts";
 import { LocalAuthParams, OAuthParams } from "./types.ts";
 
 /**
@@ -14,9 +14,13 @@ type StrategyParams = LocalAuthParams | OAuthParams;
  * @returns Strategy
  */
 
+/**
+ * 
+ * @param params StrategyParams object constructed with initialization details of Strategy of choice
+ * @returns {OAuth | LocalAuth} Returns class with exposed Middleware functions based off chosen strategy
+ */
 export function init(params: LocalAuthParams): LocalAuth;
 export function init(params: OAuthParams): OAuth;
-
 export function init(params: StrategyParams): LocalAuth | OAuth {
   let strategy: Strategy;
 

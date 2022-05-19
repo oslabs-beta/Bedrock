@@ -13,8 +13,7 @@ export class GoogleOAuth extends OAuth{
 
   /**
    * Appends necessary client info onto uri string and redirects to generated link.
-   * @param ctx 
-   * @returns 
+   * @param ctx - Context object passed in via the Middleware chain  
    **/
   sendRedirect = async (ctx: Context): Promise<void> => {
     let uri = this.uriBuilder();
@@ -34,10 +33,9 @@ export class GoogleOAuth extends OAuth{
   }
 
   /**
-   * Functionality to generate post request to Discord server to obtain access token
-   * @param ctx 
-   * @param next 
-   * @returns 
+   * Functionality to generate post request to Google server to obtain access token
+   * @param ctx - Context object passed in via the Middleware chain 
+   * @param next - Invokes next function in the Middleware chain
    **/
   getToken = async ( ctx: Context, next: () => Promise<unknown>) => {
     try {

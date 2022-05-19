@@ -30,9 +30,9 @@ export abstract class OAuth extends Auth{
    */
   
   /**
-   * 
-   * @param length 
-   * @returns 
+   * Pseudorandom string generator used to generate various types of secrets across the library
+   * @param length - The length of the string generated
+   * @returns {string} String of length passed in to the function
    */
   randomStringGenerator = (length: number): string => {
     let result = '';
@@ -44,15 +44,9 @@ export abstract class OAuth extends Auth{
   }
 
   /**
-   * 
-   * @param ctx 
-   * @param next 
+   * Generic URI builder function to create the OAuth link based off provider
+   * @returns {string} Initial URI of the respective OAuth provider
    */
-  // signOut = async (ctx: Context, next: () => Promise<unknown>) => {
-  //   await ctx.state.session.deleteSession(ctx);
-  //   next();
-  // };
-
   uriBuilder = ():string => {
     let uri;
 

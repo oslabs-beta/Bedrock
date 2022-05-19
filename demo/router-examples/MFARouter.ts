@@ -1,4 +1,6 @@
-import { init } from '../../src/mod.ts';
+import { init } from 'https://deno.land/x/Bedrock@v1.0.1/mod.ts';
+
+
 import { Router, Context } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 import dbController from '../controller/controller.ts';
 import "https://deno.land/std@0.138.0/dotenv/load.ts";

@@ -6,7 +6,12 @@
  import { crypto } from "../../deps.ts";
  import { decode32 } from "../../deps.ts";
 
-// HMAC-SHA1 implementation
+/**
+ * HMAC SHA-1 function used to hash message based off key
+ * @param k - Key passed in as a UInt8Array
+ * @param m - Message passed in as a UInt8Array
+ * @returns HMAC SHA1 hashed message returned as a UInt8Array
+ */
 async function hmacSHA1(k: Uint8Array, m: Uint8Array): Promise<Uint8Array> {
   // SHA1 has a block size of 64 bytes
   const BLOCKSIZE = 64;
@@ -57,7 +62,12 @@ async function hmacSHA1(k: Uint8Array, m: Uint8Array): Promise<Uint8Array> {
   return result;
 }
 
-// Returns array of TOTP codes
+/**
+ * Function that generates array of TOTP codes
+ * @param secret - Base32 secret required by TOTP algorithm
+ * @param numTimeSteps - Time steps derived by dividing Unix Epoch by 30 seconds (time window of each code)
+ * @returns Array of TOTP codes, with first element being previous token, second being current, and third being next
+ */
 export async function generateTOTP(secret:string, numTimeSteps?: number): Promise<string[]> {
   // In place in order to faciliate testing
   if (numTimeSteps === undefined) {

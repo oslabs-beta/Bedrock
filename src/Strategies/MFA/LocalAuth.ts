@@ -5,8 +5,7 @@ import { Twilio } from "./twilio.ts";
 import { Auth } from "../Auth.ts";
 
 /**
- * Class LocalAuth has 1 REQUIRED property: checkCreds
- * All other properties are optional, and will be subjected to type LocalAuthParams
+ * Local Authentication class with Middleware functions to provide functionality needed by the developer
  */
 export class LocalAuth extends Auth {
   checkCreds: (username: string, password: string) => Promise<boolean>;
@@ -74,21 +73,7 @@ export class LocalAuth extends Auth {
     }
 
     return next();
-    // Developer needs to check the state property localVerified to redirect user
-    // and send response based off auth status
   };
-  /**
-   * @param context object
-   * @param next function
-   * Note: verifyAuth is an OPTIONAL authorization verifying middleware function for the developer to utilize
-       This may be deferred, as developer may utilize different means of verifying authorization prior to allowing client access to sensitive material
-   * verifyAuth checks the isLoggedIn and mfa_success session properties previously set by checkMFA
-   * Will ensure that isLoggedIn is true
-      Then will check to see if mfa_enabled is true -- if so, will ensure previous mfaCheck set property mfa_success to true
-        If mfa_success is true, will then allow progression
-   *  Otherwise, if mfa_enabled is false, will also allow progression since mfa_success check is not warranted
-   * If isLoggedIn is false, will return message stating client is "Not currently signed in"
-   */
 
   /**
    * @param context object
