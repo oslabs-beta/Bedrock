@@ -25,7 +25,7 @@ Bedrock offers several ways to provide multi-factor authentication through a loc
 - Twitter
 ## Local Authentication Strategy
 
-### Define Your Parameters
+### Define your parameters
 Implementing your choice of strategies will require some variance in your parameters object. Visit our documentatioin for more information about which parameters you will need for your desired implementation.
 ```typescript
 const params: LocalAuthParams = {  
@@ -98,7 +98,7 @@ MFARouter.get('/signout', Bedrock.signOut, (ctx: Context) => {
 ## OAuth 2.0 Strategy
 All OAuth providers require a client_id, client_secret, and redirect_uri. Additionally, Bedrock requires the developer to define scope for an added level of secruity. However, each OAuth provider publishes an extensive list of their supported scopes and they largely differ from each other. Please see our [documentation](https://bedrockauth.dev/docs) for more information about scopes for specific OAuth providers. 
 
-### Define Your Parameters
+### Define your parameters
 ```typescript
 const params: OAuthParams = {
   provider: 'Github',
@@ -108,7 +108,7 @@ const params: OAuthParams = {
   scope: 'read:user',
 };
 ```
-### Initiate a Bedrock Class
+### Initiate a Bedrock class
 ```typescript
 const Bedrock = init(params);
 ```
@@ -141,7 +141,7 @@ OAuthRouter.get('/signout', Bedrock.signOut, (ctx: Context) => {
 });
 ```
 
-## How Bedrock is Built
+## How Bedrock is built
 - The timed one time password (TOTP) algorithm used in Bedrock follows the standard outlined in the [IETF RFC 6238](https://datatracker.ietf.org/doc/html/rfc6238).
 - The SMS verification is provided through use of the [Twilio API](https://www.twilio.com/docs/usage/api).
 - The email verification is provided through [deno-mailer](https://deno.land/x/denomailer@1.0.1)
