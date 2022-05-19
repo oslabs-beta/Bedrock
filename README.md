@@ -159,6 +159,7 @@ OAuthRouter.get('/signout', Bedrock.signOut, (ctx: Context) => {
 
 ## v1.0.2
 - Removed debugging information from Twilio class
+- Changed mfa_type to mfaType to maintain camelCase consistency
 
 ## v1.0.1
 - Added additional Local Authentication MFA option of e-mail (via [deno-mailer](https://deno.land/x/denomailer@1.0.1))
