@@ -28,10 +28,9 @@ Bedrock offers several ways to provide multi-factor authentication through a loc
 ### Define Your Parameters
 Implementations your choice of strategies will require some variance in your parameters object. Visit our documentatioin for more information about which parameters you will need for your desired implementation.
 ```typescript
-const params: LocalAuthParams = {
-  mfa_enabled : true,
+const params: LocalAuthParams = {  
   checkCreds : dbController.checkCreds,
-  mfa_type: "Token",
+  mfaType: "Token",
   getSecret: dbController.getSecret,
 };
 ```
