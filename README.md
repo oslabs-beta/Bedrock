@@ -11,7 +11,7 @@ Check our website [here](https://bedrockauth.dev) for additional information and
 
 ### Importing Bedrock
 ```typescript
-import { init } from 'https://deno.land/x/bedrock@v1.0.1/mod.ts'
+import { init } from 'https://deno.land/x/bedrock/mod.ts'
 ```
 ## Implementation
 
@@ -26,7 +26,7 @@ Bedrock offers several ways to provide multi-factor authentication through a loc
 ## Local Authentication Strategy
 
 ### Define your parameters
-Implementing your choice of strategies will require some variance in your parameters object. Visit our documentatioin for more information about which parameters you will need for your desired implementation.
+Implementing your choice of strategies will require some variance in your parameters object. Visit our documentation for more information about which parameters you will need for your desired implementation.
 ```typescript
 const params: LocalAuthParams = {  
   checkCreds : dbController.checkCreds,
