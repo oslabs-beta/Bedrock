@@ -16,8 +16,8 @@ export class Twilio {
   }
 
   /**
-   * @param payload object
-   * returns promise<string>
+   * @param payload - SMSRequest object that contains information such as From, To, and Body of the SMS message
+   * @returns Body of the API response, which will be the code sent to the end user
    * 
    * Sends a post request to the TwilioSMS API 
    * Content-type of the SMS message is passed as url-encoded form (ex. key1=value1&key2=value2)
@@ -46,7 +46,7 @@ export class Twilio {
   }
   /**
    * 
-   * @param fromAndTo object
+   * @param fromAndTo - an object with the To and From phone number for the Twilio API to send the message
    * 
    * Will invoke the imported generateTOTP() function with the passed in secret 
    * Since generateTOTP provides an array of 3 codes, will utilize the code at index 1

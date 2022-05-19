@@ -1,52 +1,44 @@
-import { Router, Context } from "../../src/deps.ts";
+import { init } from 'https://deno.land/x/Bedrock@v1.0.1/mod.ts';
+
+
+import { Router, Context } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 import dbController from '../controller/controller.ts';
-import { init } from '../../src/mod.ts'
-import { LocalAuthParams } from '../../src/types.ts'
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
 
-export const MFARouter = new Router();
+export const MFARouter = new Router();    
 
-// Inputting the parameters for Local Authentication and MFA
-const params: LocalAuthParams = {
-  mfa_enabled : true,
-  checkCreds : dbController.checkCreds,
-  mfa_type: "Token",
-  getSecret: dbController.getSecret,
-  // getNumber: dbController.getNumber,
-  // accountSID: Deno.env.get('TWILIO_ACCOUNT_SID')!,
-  // authToken: Deno.env.get('TWILIO_AUTH_TOKEN')!,
-}            
-
-// Initializing the Bedrock library with the above parameters
-const Bedrock = initLocal(params);
+// Initializing the Bedrock library
+const Bedrock = init({
+  provider: 'Local',
+  mfa_type: 'Token',
+  checkCreds: dbController.checkCreds,
+  getSecret: dbController.getSecret
+});
 
 // Verification of username/password and creation of session
 MFARouter.post('/', Bedrock.localLogin, (ctx: Context) => {
-  console.log('Successfully logged in via username/password');
-  ctx.response.body = 'WOO';
-  ctx.response.status = 200;
+  console.log('Successfully logged in via username/password, rerouting to check MFA');
+  ctx.response.redirect('/checkMFA');
   return;
-})
+});
 
 // Verification of MFA token code, if enabled
 MFARouter.post('/checkMFA', Bedrock.checkMFA, (ctx: Context) => {
   console.log('Successfully verified MFA code');
   ctx.response.redirect('/secret');
   return;
-})
+});
 
 // Secret route with session verification middleware
 MFARouter.get('/secret', Bedrock.verifyAuth, (ctx: Context) => {
   console.log('Secret obtained!');
   ctx.response.body = 'Secret obtained!';
-  ctx.response.status = 200;
   return;
-})
+});
 
 // Route to log user out of server session
 MFARouter.get('/signout', Bedrock.signOut, (ctx: Context) => {
   console.log('Successfully signed out');
   ctx.response.body = 'Successfully signed out';
-  ctx.response.status = 200;
   return;
-})
+});

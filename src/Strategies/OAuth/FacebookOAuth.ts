@@ -9,12 +9,11 @@ export class FacebookOAuth extends OAuth{
 
   /**
    * Appends necessary client info onto uri string and redirects to generated link.
-   * @param ctx 
-   * @returns 
+   * @param ctx - Context object passed in via the Middleware chain  
    **/
   sendRedirect = async (ctx: Context): Promise<void> => {
     let uri = this.uriBuilder();
-    ctx.state.session.set("state", this.randomStringGenerator(20));
+    await ctx.state.session.set("state", this.randomStringGenerator(20));
 
     uri += `&state=${await ctx.state.session.get('state')}`;
     
@@ -23,10 +22,9 @@ export class FacebookOAuth extends OAuth{
   };
     
   /**
-   * Functionality to generate post request to Discord server to obtain access token
-   * @param ctx 
-   * @param next 
-   * @returns 
+   * Functionality to generate post request to Facebook server to obtain access token
+   * @param ctx - Context object passed in via the Middleware chain 
+   * @param next - Invokes next function in the Middleware chain
    **/
   getToken = async (ctx: Context, next: () => Promise<unknown>) => {
     try {
@@ -61,8 +59,8 @@ export class FacebookOAuth extends OAuth{
       }
       
       // Bedrock session management variable assignment
-      ctx.state.session.set("accessToken", token.access_token);
-      ctx.state.session.set("isLoggedIn", true);
+      await ctx.state.session.set("accessToken", token.access_token);
+      await ctx.state.session.set("isLoggedIn", true);
 
       /**
        * State properties that expire at end of response cycle
@@ -73,7 +71,7 @@ export class FacebookOAuth extends OAuth{
       ctx.state.token = token;
     } 
     catch(err) {
-      ctx.state.session.set("isLoggedIn", false);
+      await ctx.state.session.set("isLoggedIn", false);
       ctx.state.OAuthVerified = false;
 
       console.log('There was a problem logging in with Facebook: ', err)

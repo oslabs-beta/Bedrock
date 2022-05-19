@@ -1,36 +1,30 @@
-export { Router, Context } from "https://deno.land/x/oak@v10.5.1/mod.ts";
-import { init } from '../../src/bedrock.ts';
-import { OAuthParams } from '../../src/types.ts';
+import { init } from '../../src/mod.ts';
+import { Router, Context } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
 
-export const oAuthRouter = new Router();
+export const OAuthRouter = new Router();
 
-// Inputting the parameters for OAuth
-const params: OAuthParams = {
+// Initializing the Bedrock library
+const Bedrock = init({
   provider: 'Github',
   client_id: Deno.env.get('CLIENT_ID')!,
   client_secret: Deno.env.get('CLIENT_SECRET')!,
   redirect_uri: Deno.env.get('AUTH_CALLBACK_URL')!,
-  // login? : string;
-  // scope? : string;
-  // allow_signup? : string;
-}
-
-// Initializing the Bedrock library with the above parameters
-const Bedrock = init(params);
+  scope: 'read:user'
+});
 
 // Route to redirect user to OAuth provider's login site
-oAuthRouter.get('/OAuth', Bedrock.sendRedirect);
+OAuthRouter.get('/OAuth', Bedrock.sendRedirect);
 
 // Route to retrieve access token and create user session
-oAuthRouter.get('/OAuth/github', Bedrock.getToken, (ctx: Context) => {
+OAuthRouter.get('/OAuth/github', Bedrock.getToken, (ctx: Context) => {
   console.log('Successfully logged in via OAuth')
   ctx.response.redirect('/secret');
   return;
 });
 
 // Secret route with verification middleware
-oAuthRouter.get('/secret', Bedrock.verifyAuth, (ctx: Context) => {
+OAuthRouter.get('/secret', Bedrock.verifyAuth, (ctx: Context) => {
   console.log('Secret obtained!');
   ctx.response.body = 'Secret obtained!';
   ctx.response.status = 200;
@@ -38,7 +32,7 @@ oAuthRouter.get('/secret', Bedrock.verifyAuth, (ctx: Context) => {
 })
 
 // Route to log user out of OAuth and server session
-oAuthRouter.get('/signout', Bedrock.signOut, (ctx: Context) => {
+OAuthRouter.get('/signout', Bedrock.signOut, (ctx: Context) => {
   console.log('Successfully signed out');
   ctx.response.redirect('/home');
   return;

@@ -5,3 +5,5 @@ export { LinkedinOAuth } from "./Strategies/OAuth/LinkedinOAuth.ts";
 export { DiscordOAuth } from "./Strategies/OAuth/DiscordOAuth.ts";
 export { FacebookOAuth } from "./Strategies/OAuth/FacebookOAuth.ts";
 export { TwitterOAuth } from "./Strategies/OAuth/TwitterOAuth.ts";
+export { Auth } from "./Strategies/Auth.ts";
+export { OAuth } from "./Strategies/OAuth/OAuth.ts";

@@ -5,17 +5,17 @@ import { Twilio } from "./twilio.ts";
 import { Auth } from "../Auth.ts";
 
 /**
- * Class LocalAuth has 2 REQUIRED properties: checkCreds and mfa_enabled
- * All other properties are optional, and will be subjected to type LocalAuthParams
+ * Local Authentication class with Middleware functions to provide functionality needed by the developer
  */
 export class LocalAuth extends Auth {
   checkCreds: (username: string, password: string) => Promise<boolean>;
-  getSecret?: (username: string) => Promise<string>;
+  getSecret?: (username: string) => Promise<string | null>;
   readCreds?: (ctx: Context) => Promise<string[]>;
   mfa_type?: string;
   accountSID?: string;
   authToken?: string;
   getNumber?: (username: string) => Promise<string>;
+  sourceNumber?: string;
   clientOptions?: ClientOptions;
   getEmail?: (username: string) => Promise<string>;
   fromAddress?: string;
@@ -63,31 +63,17 @@ export class LocalAuth extends Auth {
 
     if (await this.checkCreds(username, password)) {
       await ctx.state.session.set("isLoggedIn", true);
+      await this.sendMFA(ctx);
+
       ctx.state.localVerified = true;
       ctx.state.mfaRequired = this.mfa_type !== undefined;
-
-      this.sendMFA(ctx);
     } else {
       await ctx.state.session.set("isLoggedIn", false);
       ctx.state.localVerified = false;
     }
 
-    next();
-    // Developer needs to check the state property localVerified to redirect user
-    // and send response based off auth status
+    return next();
   };
-  /**
-   * @param context object
-   * @param next function
-   * Note: verifyAuth is an OPTIONAL authorization verifying middleware function for the developer to utilize
-       This may be deferred, as developer may utilize different means of verifying authorization prior to allowing client access to sensitive material
-   * verifyAuth checks the isLoggedIn and mfa_success session properties previously set by checkMFA
-   * Will ensure that isLoggedIn is true
-      Then will check to see if mfa_enabled is true -- if so, will ensure previous mfaCheck set property mfa_success to true
-        If mfa_success is true, will then allow progression
-   *  Otherwise, if mfa_enabled is false, will also allow progression since mfa_success check is not warranted
-   * If isLoggedIn is false, will return message stating client is "Not currently signed in"
-   */
 
   /**
    * @param context object
@@ -107,7 +93,8 @@ export class LocalAuth extends Auth {
     const mfaSecret = await this.getSecret!(
       await ctx.state.session.get("username"),
     );
-    const currentTOTP = await generateTOTP(mfaSecret);
+
+    const currentTOTP = await generateTOTP(mfaSecret!);
 
     const verified = currentTOTP.some((totp) => {
       return totp === bodyValue.code;
@@ -120,12 +107,7 @@ export class LocalAuth extends Auth {
     } else {
       await ctx.state.session.set("mfa_success", false);
       ctx.state.mfaVerified = false;
-      ctx.response.status = 401;
-      ctx.response.body = {
-        success: false,
-        message: "Invalid credentials",
-      };
-      return;
+      return next();
     }
   };
   /**
@@ -141,15 +123,17 @@ export class LocalAuth extends Auth {
       await ctx.state.session.get("username"),
     );
 
-    if (this.mfa_type === "SMS") {
+    ctx.state.hasSecret = (secret === null) ? false : true;
+
+    if (this.mfa_type === "SMS" && secret) {
       const sms = new Twilio(this.accountSID!, secret, this.authToken!);
       const context: Incoming = {
-        From: "+17164543649", //need to use env or pass into class initialization for developer to add phone number
+        From: this.sourceNumber!,
         To: await this.getNumber!(await ctx.state.session.get("username"))!,
       };
-      // await sms.sendSms(context);
+
       await sms.sendSms(context);
-    } else if (this.mfa_type === "Email") {
+    } else if (this.mfa_type === "Email" && secret) {
       // Generate TOTP code
       const code = await generateTOTP(secret);
 
@@ -160,10 +144,11 @@ export class LocalAuth extends Auth {
       const subjectText: string = "Your MFA code is " + code[1];
       const contentText: string = subjectText;
       const htmlText: string = "<p>Your MFA code is " + code[1] + ".</p>";
+      const userEmail = await this.getEmail!(await ctx.state.session.get('username'));
 
       const newEmail: SendConfig = {
         from: this.fromAddress!,
-        to: "bedrock.deno@gmail.com", //need to use env or pass into class intialization
+        to: userEmail,
         subject: subjectText,
         content: contentText,
         html: htmlText,
@@ -173,5 +158,17 @@ export class LocalAuth extends Auth {
       await client.send(newEmail);
       await client.close();
     }
+    return;
   };
+
+  static readonly generateTOTPSecret = (): string => {
+    const randString: Array<string> = new Array(32);
+    const base32Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  
+    for (let i = 0; i < randString.length; i++) {
+      randString[i] = base32Chars[Math.floor(Math.random() * 32)];
+    }
+  
+    return randString.join('');
+  }
 }

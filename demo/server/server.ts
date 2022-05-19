@@ -1,6 +1,6 @@
-import { Application } from "../../src/deps.ts";
+import { Application } from "https://deno.land/x/oak/mod.ts";
 import { MFARouter } from '../router/MFARouter.ts';
-import { Session } from "../../src/deps.ts";
+import { Session } from "https://deno.land/x/oak_sessions@v3.4.0/mod.ts";
 
 const app = new Application();
 const session = new Session();

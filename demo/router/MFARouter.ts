@@ -1,4 +1,4 @@
-import { Router, Application, helpers, Context, isHttpError } from "https://deno.land/x/oak@v10.5.1/mod.ts";
+import { Router, helpers, Context } from "https://deno.land/x/oak@v10.5.1/mod.ts";
 import dbController from "../controller/controller.ts";
 import { init } from "../../src/mod.ts";
 import {
@@ -7,7 +7,6 @@ import {
   OAuthParams,
 } from "../../src/types.ts";
 import "https://deno.land/std@0.138.0/dotenv/load.ts";
-import { GithubOAuth } from "../../src/Strategies/OAuth/GithubOAuth.ts";
 
 export const MFARouter = new Router();
 
@@ -25,8 +24,8 @@ const clientOptions: ClientOptions = {
 const params: LocalAuthParams = {
   provider: "Local",
   checkCreds: dbController.checkCreds,
-  // mfa_type: "SMS",
-  // getSecret: dbController.getSecret,
+  mfa_type: "Token",
+  getSecret: dbController.getSecret,
   readCreds: async (ctx: Context): Promise<string[]> => {
     const body = await ctx.request.body();
     const bodyValue = await body.value;
@@ -89,13 +88,13 @@ const TwitterParams: OAuthParams = {
   scope: "tweet.read users.read follows.read follows.write",
 };
 
-const Bedrock: any = init(params);
-const BedrockGithub: any = init(GithubParams);
-const BedrockGoogle: any = init(GParams);
-const BedrockLinkedin: any = init(LinkedinParams);
-const BedrockDiscord: any = init(DiscordParams);
-const BedrockFacebook: any = init(FacebookParams);
-const BedrockTwitter: any = init(TwitterParams);
+const Bedrock = init(params);
+const BedrockGithub = init(GithubParams);
+const BedrockGoogle = init(GParams);
+const BedrockLinkedin = init(LinkedinParams);
+const BedrockDiscord = init(DiscordParams);
+const BedrockFacebook = init(FacebookParams);
+const BedrockTwitter = init(TwitterParams);
 
 MFARouter.get("/", async (ctx: Context) => {
   await ctx.send({
@@ -106,13 +105,25 @@ MFARouter.get("/", async (ctx: Context) => {
 });
 
 MFARouter.post("/login", Bedrock.localLogin, (ctx: Context) => {
+
   if (ctx.state.localVerified) {
-    ctx.response.body = {
-      successful: true,
-      mfa_required: ctx.state.mfaRequired,
-    };
-    ctx.response.status = 200;
+    // Authenticated locally
+    if (ctx.state.hasSecret === false) {
+      // No MFA secret attached to account
+      ctx.response.body = {
+        successful: false,
+        log: 'No secret',
+      }
+    } else {
+      // MFA secret found
+      ctx.response.body = {
+        successful: true,
+        mfa_required: ctx.state.mfaRequired,
+      };
+      ctx.response.status = 200;
+    }
   } else {
+    // Local authentication failed
     ctx.response.body = {
       successful: false,
     };
@@ -120,6 +131,12 @@ MFARouter.post("/login", Bedrock.localLogin, (ctx: Context) => {
   }
   return;
 });
+
+MFARouter.get("/getSecret", (ctx: Context) => {
+  ctx.response.body = "You do not have a secret";
+  ctx.response.status = 200;
+  return;
+})
 
 MFARouter.post("/verifyMFA", Bedrock.checkMFA, (ctx: Context) => {
   ctx.response.body = {
@@ -202,10 +219,18 @@ MFARouter.get(
   "/secret.html",
   BedrockDiscord.verifyAuth,
   async (ctx: Context) => {
-    await ctx.send({
-      root: `${Deno.cwd()}/demo/client`,
-      path: `secret.html`,
-    });
+    if (ctx.state.authSuccess) {
+      await ctx.send({
+        root: `${Deno.cwd()}/demo/client`,
+        path: `secret.html`,
+      });
+    } else {
+      await ctx.send({
+        root: `${Deno.cwd()}/demo/client`,
+        path: `blocked.html`,
+      });
+    }
+    
     return;
   },
 );
