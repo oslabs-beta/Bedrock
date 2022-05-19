@@ -2,7 +2,7 @@ import { DiscordOAuth, FacebookOAuth, GithubOAuth, GoogleOAuth, LinkedinOAuth, L
 import { LocalAuthParams, OAuthParams } from "./types.ts";
 
 /**
- * Strategy and StrategyParams type is 
+ * Strategy and StrategyParams type is a collection of various strategies and their respective parameter objects grouped for cleanliness
  */
 type Strategy = DiscordOAuth | FacebookOAuth | GithubOAuth | GoogleOAuth | LinkedinOAuth | LocalAuth | TwitterOAuth;
 type StrategyParams = LocalAuthParams | OAuthParams;
