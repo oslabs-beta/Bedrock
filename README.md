@@ -25,19 +25,14 @@ Bedrock offers several ways to provide multi-factor authentication through a loc
 - Twitter
 ## Local Authentication Strategy
 
-### Define your parameters
-Implementing your choice of strategies will require some variance in your parameters object. Visit our documentation for more information about which parameters you will need for your desired implementation.
+### Initiate Bedrock
+Initiate a Bedrock class object passing in params. Implementing your choice of strategies will require some variance in your parameters object. Visit our documentation for more information about which parameters you will need for your desired implementation.
 ```typescript
-const params: LocalAuthParams = {  
+const Bedrock = init({  
   checkCreds : dbController.checkCreds,
   mfaType: 'Token',
   getSecret: dbController.getSecret,
 };
-```
-### Initiate Bedrock
-Initiate a Bedrock class object passing in params.
-```typescript
-const Bedrock = init(params);
 ```
 
 ### Implant Bedrock middleware into your routes
