@@ -39,31 +39,34 @@ const Bedrock = init({
 ```typescript
 // Verification of username/password and creation of session
 MFARouter.post('/login', Bedrock.localLogin, (ctx: Context) => {
-  if(ctx.state.localVerified){
+  if(ctx.state.localVerified) {
     //inside this if statement means user is locally authenticated with username/password  
-    if(ctx.state.hasSecret === false){
+    if (ctx.state.hasSecret === false) {
       //inside this if statement means user is locally authenticated 
       //but does not have a stored secret
       ctx.response.body = {
         successful: true;
         mfaRequired: ctx.state.mfaRequired; //false
-      }
-  } else{
+      };
+    } else {
       //inside this else statement means user is locally authenticated and with a secret, 
       //to be redirected to verify MFA
       ctx.response.body = {
       successful: true,
       mfaRequired: ctx.state.mfaRequired; //true
+      };
     };
+    //sending the response that the request was successful
     ctx.response.status = 200;
-  } else{
+  } else {
       //inside this else statement means user authentication with username/password failed
       ctx.response.body = {
         successful: false
       }
       ctx.response.status = 401;
-  }
+  };
   return;
+};
 
 // Verification of MFA token code, if enabled
 MFARouter.post('/checkMFA', Bedrock.checkMFA, (ctx: Context) => {
